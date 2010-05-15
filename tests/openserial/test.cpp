@@ -64,6 +64,27 @@ const char* speedName(unsigned value)
 	return "Not found";
 }
 
+struct __attribute__((packed)) StartedFrame
+{
+	unsigned char addr;
+	union
+	{
+		unsigned char cmd[2];
+		uint16_t      cmd16;
+	};
+	
+	friend std::ostream& operator<<(std::ostream& os, const StartedFrame& af)
+	{
+		std::ostream::sentry init(os);
+		if (init)
+		{
+			os << "addr=" << (int)af.addr
+				<< " cmd=0x" << std::setfill('0') << std::setw(4)
+				<< std::hex << (int)af.cmd16 << std::dec;
+		}
+		return os;
+	}
+};
 struct __attribute__((packed)) AccelFrame
 {
 	unsigned char addr;
@@ -111,15 +132,29 @@ AccelFrame readAccFrame(int fd)
 	if (ret != sizeof(af))
 		std::cout << __func__ << " ret: " << ret << std::endl;
 	if (ret != sizeof(af))
-		af.x = af.y = af.z = 0;
+		af.status = 0xFF;
 	if (ret < 0)
 		perror(0);
 	return af;
 }
 
-bool startAccessPoint(int fd)
+StartedFrame readStartedFrame(int fd)
 {
-	static const char msg[] = { 0xFF, 0x07, 0x03 };
+	StartedFrame sf;
+	assert(sizeof(sf) == 3);
+	int ret = read(fd, &sf, sizeof(sf));
+	if (ret != sizeof(sf))
+		std::cout << __func__ << " ret: " << ret << std::endl;
+	if (ret < 0)
+		perror(0);
+	return sf;
+}
+
+#define ADDR 0xFF
+
+bool startAccessPoint(int fd, char addr = ADDR)
+{
+	static const char msg[] = { addr, 0x07, 0x03 };
 	int ret = write(fd, msg, sizeof(msg));
 	if (ret != sizeof(msg))
 		std::cout << __func__ << " ret: " << ret << std::endl;
@@ -127,9 +162,9 @@ bool startAccessPoint(int fd)
 		perror(0);
 }
 
-bool stopAccessPoint(int fd)
+bool stopAccessPoint(int fd, char addr = ADDR)
 {
-	static const char msg[] = { 0xFF, 0x09, 0x03 };
+	static const char msg[] = { addr, 0x09, 0x03 };
 	int ret = write(fd, msg, sizeof(msg));
 	if (ret != sizeof(msg))
 		std::cout << __func__ << " ret: " << ret << std::endl;
@@ -137,9 +172,9 @@ bool stopAccessPoint(int fd)
 		perror(0);
 }
 
-bool accDataRequest(int fd)
+bool accDataRequest(int fd, char addr = ADDR)
 {
-	static const char msg[] = { 0xFF, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00 };
+	static const char msg[] = { addr, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00 };
 	assert(sizeof(msg) == 7);
 	int ret = write(fd, msg, sizeof(msg));
 	if (ret != sizeof(msg))
@@ -195,15 +230,23 @@ ok:
 	if (!stop)
 	{
 		startAccessPoint(fd);
+		StartedFrame sf = readStartedFrame(fd);
+		std::cout << sf << std::endl;
+
 		for (;;)
 		{
 			accDataRequest(fd);
 			AccelFrame af = readAccFrame(fd);
-			if (!af.isEmpty() && af.btnCode)
+			if (!af.isEmpty())
 				std::cout << af << std::endl;
 		}
 	}
-	stopAccessPoint(fd);
+	if (stop)
+	{
+		stopAccessPoint(fd);
+		StartedFrame sf = readStartedFrame(fd);
+		std::cout << sf << std::endl;
+	}
 	close(fd);
 }
 

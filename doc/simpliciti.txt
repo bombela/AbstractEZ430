@@ -4,7 +4,17 @@
  *
 */
 
-Simpliciti packet
+= Simpliciti protocol =
+
+== Acknowledge packet ==
+
+addr 1 byte    | cmd 2 bytes   |
+
+0xFF broadcast |               |
+0x00 broadcast |               |
+               | 0x0306 Ack    |
+
+== Accel packet ==
 
 addr 1 byte    | cmd 2 bytes   | status 1 byte | x, y, z (each 1 byte)
 
