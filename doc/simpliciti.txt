@@ -1,0 +1,23 @@
+/*
+ * doc/simpliciti.txt
+ * Copyright © 2010 François-Xavier 'Bombela' Bourlet <bombela@gmail.com>
+ *
+*/
+
+Packet
+
+addr              | 
+
+0xFF -> broadcast
+0x00 -> broadcast
+
+status
+	- 0xFF -> empty packet (probably useless).
+	- 0000 0000 -> two 4bit values
+	   btn info
+	   
+	- xxxx 0001 -> packet with position (x, y, z) 
+
+	- 0001 xxxx -> Up left
+	- 0010 xxxx -> Down left
+	- 0011 xxxx -> Up right

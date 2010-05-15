@@ -72,12 +72,20 @@ struct __attribute__((packed)) AccelFrame
 		unsigned char cmd[2];
 		uint16_t      cmd16;
 	};
-	unsigned char garbage;
+	union
+	{
+		struct
+		{
+			unsigned char withPos:4;
+			unsigned char btnCode:4;
+		};
+		unsigned char status;
+	};
 	unsigned char x;
 	unsigned char y;
 	unsigned char z;
 
-	bool isNotZero() const { return x && y && z; }
+	bool isEmpty() { return status == 0xFF; }
 
 	friend std::ostream& operator<<(std::ostream& os, const AccelFrame& af)
 	{
@@ -87,7 +95,8 @@ struct __attribute__((packed)) AccelFrame
 			os << "addr=" << (int)af.addr
 				<< " cmd=0x" << std::setfill('0') << std::setw(4)
 				<< std::hex << (int)af.cmd16 << std::dec
-				<< " garbage=" << (int)af.garbage
+				<< " btnCode=" << (int)af.btnCode
+				<< " withPos=" << (int)af.withPos
 				<< " x=" << (int)af.x << " y=" << (int)af.y << " z=" << (int)af.z;
 		}
 		return os;
@@ -190,7 +199,7 @@ ok:
 		{
 			accDataRequest(fd);
 			AccelFrame af = readAccFrame(fd);
-			//if (af.garbage != 1 && af.isNotZero())
+			if (!af.isEmpty() && af.btnCode)
 				std::cout << af << std::endl;
 		}
 	}
