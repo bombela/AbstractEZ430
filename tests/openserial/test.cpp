@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <iomanip>
+#include <sstream>
 
 static struct
 {
@@ -209,6 +210,34 @@ bool resetHW(int fd, char addr = ADDR)
 	}
 }
 
+bool sendData(int fd, const std::string& data, char addr = ADDR)
+{
+	std::cout << "Sending data: " << data << std::endl;
+
+	int len = data.size() / 2 + 1;
+	char msg[len];
+	msg[0] = addr;
+	int j = 1;
+	for (int i = 0; i < data.size(); i += 2)
+	{
+		std::string str;
+		str.push_back(data[i]);
+		str.push_back(data[i+1]);
+		std::istringstream is(str);
+		int v;
+		is >> std::hex >> v;
+		msg[j++] = v;
+	}
+
+	int ret = write(fd, msg, len);
+	if (ret != len)
+		std::cout << __func__ << " ret: " << ret << std::endl;
+	if (ret < 0)
+		perror(0);
+	else
+		std::cout << "sent!" << std::endl;
+}
+
 bool startAccessPointSyncMode(int fd, char addr = ADDR)
 {
 	std::cout << "Starting access point... SYNC mode" << std::endl;
@@ -253,7 +282,7 @@ bool accDataRequest(int fd, char addr = ADDR)
 		perror(0);
 }
 
-void readAndPrintStatus(int fd, char addr = ADDR)
+void readAndPrintStatus(int fd, char addr = ADDR, bool r = true)
 {
 	std::cout << "Reading hw status..." << std::endl;
 	static const char msg[] = { addr, 0x00, 0x04, 0x00 };
@@ -264,12 +293,17 @@ void readAndPrintStatus(int fd, char addr = ADDR)
 		perror("status will be not read");
 	else
 	{
+		if (!r)
+		{
+			std::cout << "ask me to not read response" << std::endl;
+			return;
+		}
 		StatusPacket sp = readStatusPacket(fd);
 		std::cout << "status: " << sp << std::endl;
 	}
 }
 
-void doTest(const char* line, int action)
+void doTest(const char* line, int action, const std::string& data)
 {
 	int fd = open(line, O_RDWR);
 	if (fd < 0)
@@ -294,8 +328,16 @@ ok:
 	speed = cfgetospeed(&ios);
 	std::cout << "current out bps -> " << speedName(speed) << std::endl;
 
-	ios.c_cc[VMIN] = 1;
-	ios.c_cc[VTIME] = 0;
+	if (action == 7)
+	{
+		ios.c_cc[VMIN] = 0;
+		ios.c_cc[VTIME] = 10;
+	}
+	else
+	{
+		ios.c_cc[VMIN] = 1;
+		ios.c_cc[VTIME] = 0;
+	}
 	ios.c_lflag = 0;
 	ios.c_iflag = 0;
 	ios.c_oflag = 0;
@@ -316,6 +358,29 @@ ok:
 	speed = cfgetospeed(&ios);
 	std::cout << "current out bps -> " << speedName(speed) << std::endl;
 
+	if (action == 7)
+	{
+		char b[20];
+		int r;
+		int i = 0;
+		std::cout << "Cleaning..." << std::endl;
+		while (i == 0)
+		{
+			do
+			{
+				r = read(fd, &b, 20);
+				i += r;
+				if (r)
+					std::cout << "Clean byte(s) " << r << std::endl;
+			} while (r > 0);
+			std::cout << "Send garbarge bytes..." << std::endl;
+			readAndPrintStatus(fd, ADDR, false);
+		}
+		std::cout << "Total cleaned byte(s) " << i << std::endl;
+		close(fd);
+		return;
+	}
+
 	readAndPrintStatus(fd);
 	switch (action)
 	{
@@ -324,17 +389,6 @@ ok:
 				startAccessPoint(fd);
 				SimplePacket sf = readSimplePacket(fd);
 				std::cout << sf << std::endl;
-				readAndPrintStatus(fd);
-
-				for (;;)
-				{
-					break;
-					accDataRequest(fd);
-					AccelPacket af = readAccPacket(fd);
-					if (!af.isEmpty())
-						std::cout << af << std::endl;
-					readAndPrintStatus(fd);
-				}
 				break;
 			}
 		case 1:
@@ -354,6 +408,33 @@ ok:
 				readAndPrintStatus(fd);
 				break;
 			}
+		case 4:
+			{
+				startAccessPointSyncMode(fd);
+				SimplePacket sf = readSimplePacket(fd);
+				std::cout << sf << std::endl;
+				break;
+			}
+		case 5:
+			{
+				for (;;)
+				{
+					accDataRequest(fd);
+					AccelPacket af = readAccPacket(fd);
+					if (!af.isEmpty())
+						std::cout << af << std::endl;
+				}
+				break;
+			}
+		case 6:
+			{
+				sendData(fd, data);
+				SimplePacket sf = readSimplePacket(fd);
+				std::cout << sf << std::endl;
+				break;
+			}
+		case 7:
+			break;
 	}
 	readAndPrintStatus(fd);
 	close(fd);
@@ -363,20 +444,33 @@ int main(int argc, char const* argv[])
 {
 	if (argc < 2)
 	{
-		std::cout << "usage: " << argv[0] << " /dev/ttyS0 [stop|reset|status]" << std::endl;
+		std::cout << "usage: " << argv[0] << " /dev/ttyS0 [stop|reset|status|sync|acc|clean] [send DATA]" << std::endl;
 		return -1;
 	}
 	int action = 0;
-	if (argc == 3)
+	if (argc >= 3)
 	{
+		static std::string cmds[] = { "start", "stop", "reset", "status", "sync", "acc", "send", "clean" };
 		std::string an = argv[2];
-		if (an == "stop")
-			action = 1;
-		else if (an == "reset")
-			action = 2;
-		else if (an == "status")
-			action = 3;
+
+		action = -1;
+		for (int i = 0; i < sizeof(cmds) / sizeof(*cmds); ++i)
+		{
+			if (cmds[i] == an)
+			{
+				action = i;
+				break;
+			}
+		}
+		if (action == -1)
+		{
+			std::cerr << "invalid cmd" << std::endl;
+			return -1;
+		}
 	}
-	doTest(argv[1], action);
+	std::string data;
+	if (argc == 4)
+		data = argv[3];
+	doTest(argv[1], action, data);
 	return 0;
 }
