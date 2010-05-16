@@ -118,7 +118,11 @@ struct __attribute__((packed)) AccelFrame
 				<< std::hex << (int)af.cmd16 << std::dec
 				<< " btnCode=" << (int)af.btnCode
 				<< " withPos=" << (int)af.withPos
-				<< " x=" << (int)af.x << " y=" << (int)af.y << " z=" << (int)af.z;
+				//<< " x=" << (int)af.x << " y=" << (int)af.y << " z=" << (int)af.z
+				<< " x%=" << af.x * 100 / 255
+				<< " y%=" << af.y * 100 / 255
+				<< " z%=" << af.z * 100 / 255
+				;
 		}
 		return os;
 	}
@@ -154,6 +158,7 @@ StartedFrame readStartedFrame(int fd)
 
 bool startAccessPoint(int fd, char addr = ADDR)
 {
+	std::cout << "Starting access point..." << std::endl;
 	static const char msg[] = { addr, 0x07, 0x03 };
 	int ret = write(fd, msg, sizeof(msg));
 	if (ret != sizeof(msg))
@@ -164,6 +169,7 @@ bool startAccessPoint(int fd, char addr = ADDR)
 
 bool stopAccessPoint(int fd, char addr = ADDR)
 {
+	std::cout << "Stopping access point..." << std::endl;
 	static const char msg[] = { addr, 0x09, 0x03 };
 	int ret = write(fd, msg, sizeof(msg));
 	if (ret != sizeof(msg))
@@ -210,8 +216,11 @@ ok:
 
 	ios.c_cc[VMIN] = 1;
 	ios.c_cc[VTIME] = 0;
+	ios.c_lflag = 0;
+	ios.c_iflag = 0;
+	ios.c_oflag = 0;
 
-	if (cfsetospeed(&ios, B1152000) < 0)
+	if (cfsetospeed(&ios, B115200) < 0)
 		goto err;
 	if (cfsetispeed(&ios, 0) < 0)
 		goto err;
