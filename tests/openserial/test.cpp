@@ -87,6 +87,57 @@ struct __attribute__((packed)) SimplePacket
 	}
 };
 
+struct __attribute__((packed)) SyncPacket
+{
+	unsigned char addr;
+	union
+	{
+		unsigned char cmd[2];
+		uint16_t      cmd16;
+	};
+	char status;
+	char useMetric:1;
+	char hour:7;
+	char minute;
+	char second;
+	uint16_t year;
+	char month;
+	char day;
+	char alarmHour;
+	char alarmMinute;
+	uint16_t temperature; // *10
+	uint16_t altitude;
+	char padding[5];
+	
+	friend std::ostream& operator<<(std::ostream& os, const SyncPacket& af)
+	{
+		std::ostream::sentry init(os);
+		if (init)
+		{
+			os << "addr=" << (int)af.addr
+				<< " cmd=0x" << std::setfill('0') << std::setw(4)
+				<< std::hex << (int)af.cmd16 << std::dec
+				<< " status=" << (int)af.status
+				<< " usemetric=" << std::boolalpha << (bool)af.useMetric
+				<< " time=" << (int)af.hour << ":" << (int)af.minute << ":" << (int)af.second
+				<< " date=" << (int)af.month << "/" << (int)af.day << "/" << (int)af.year
+				<< " alarm=" << (int)af.alarmHour << ":" << (int)af.alarmMinute
+				<< " temp=" << af.temperature / 10.0f
+				<< " alt=" << (int)af.altitude;
+			os << " padding=";
+			int i = 0;
+			goto start;
+			for (; i < sizeof(padding); ++i)
+			{
+				os << ",";
+start:
+				os << (int)af.padding[i];
+			}
+		}
+		return os;
+	}
+};
+
 struct __attribute__((packed)) StatusPacket
 {
 	unsigned char addr;
@@ -153,6 +204,17 @@ struct __attribute__((packed)) AccelPacket
 		return os;
 	}
 };
+
+SyncPacket readSyncPacket(int fd)
+{
+	SyncPacket af;
+	int ret = read(fd, &af, sizeof(af));
+	if (ret != sizeof(af))
+		std::cout << __func__ << " ret: " << ret << std::endl;
+	if (ret < 0)
+		perror(0);
+	return af;
+}
 
 AccelPacket readAccPacket(int fd)
 {
@@ -457,6 +519,24 @@ ok:
 			}
 		case 7:
 			break;
+		case 8:
+			{
+				std::cout << "Read SYNC data request" << std::endl;
+				sendData(fd, "3303");
+				std::cout << "Read SYNC data packet" << std::endl;
+				SyncPacket sf = readSyncPacket(fd);
+				std::cout << "response: " << sf << std::endl;
+				break;
+			}
+		case 9:
+			{
+				std::cout << "Send SYNC fill data request" << std::endl;
+				sendData(fd, "310402");
+				
+				StatusPacket sp = readStatusPacket(fd);
+				std::cout << "ack: " << sp << std::endl;
+				break;
+			}
 	}
 	readAndPrintStatus(fd);
 	close(fd);
@@ -466,13 +546,13 @@ int main(int argc, char const* argv[])
 {
 	if (argc < 2)
 	{
-		std::cout << "usage: " << argv[0] << " /dev/ttyS0 [stop|reset|status|sync|acc|clean] [send DATA]" << std::endl;
+		std::cout << "usage: " << argv[0] << " /dev/ttyS0 [stop|reset|status|sync|acc|clean|rsync] [send DATA]" << std::endl;
 		return -1;
 	}
 	int action = 0;
 	if (argc >= 3)
 	{
-		static std::string cmds[] = { "start", "stop", "reset", "status", "sync", "acc", "send", "clean" };
+		static std::string cmds[] = { "start", "stop", "reset", "status", "sync", "acc", "send", "clean", "rsync", "fsync" };
 		std::string an = argv[2];
 
 		action = -1;
