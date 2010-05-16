@@ -1,0 +1,31 @@
+/*
+ * doc/design.txt
+ * Copyright © 2010 François-Xavier 'Bombela' Bourlet <bombela@gmail.com>
+ *
+*/
+
+= Design discussion about the API =
+
+Technically we deal only with the RF USB Key
+that do all the RF work itself.
+
+Watch have 3 modes :
+	- ACC/PPT -> motion events and/or buttons events.
+	- SYNC    -> read/set date/time/altimeter/temperature
+	- WBSL    -> update firmware on air.
+
+All theses modes can't work together in the same time.
+
+Notice that ACC and PPT use exactly the same protocol.
+The difference is just on the watch menu because the
+PPT mode take care about energy consumption by
+not sending the motion events.
+We can know the current mode when receiving data.
+
+The WBSL mode work only with last RF firmware we don't have,
+however we can implement the code without testing it.
+
+The global protocol for all theses mode
+is SimpliciTI (see simpliciti.txt).
+
+Following a list of different 

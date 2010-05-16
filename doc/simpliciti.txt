@@ -4,17 +4,32 @@
  *
 */
 
-= Simpliciti protocol =
+= SimpliciTI(TM) protocol =
 
-== Acknowledge packet ==
+== Packet overview ==
 
-addr 1 byte    | cmd 2 bytes   |
+addr 1 byte    | cmd 2 bytes  | Payload X bytes
 
-0xFF broadcast |               |
-0x00 broadcast |               |
-               | 0x0306 Ack    |
+0xFF broadcast | Command code | The payload size and data information
+0x00 broadcast |              | depend of the command code.
 
-== Accel packet ==
+== RF EZ430 commands packets ==
+
+=== Acknowledge packet ===
+
+Command code: 0x0306
+Payload: No.
+
+This packet just confirm the successful
+execution of the previous command.
+
+== Modes ==
+
+3 different mode.
+
+== Start access points ==
+
+Command code: 
 
 addr 1 byte    | cmd 2 bytes   | status 1 byte | x, y, z (each 1 byte)
 
@@ -27,9 +42,9 @@ status:
 	- 0xFF -> packet without interessing information
 
 	|            status 1 byte (split in half)
-	| button code 4 bits   | info 4 bits
+	| button code 4 bits   | mode 4 bits
 	   
     |
-	| 0x1 Up left button   | 0x1 -> packet with position (x, y, z)
-	| 0x2 Down left button |
+	| 0x1 Up left button   | 0x1 -> acc mode (receive ether buttons & motion events)
+	| 0x2 Down left button | 0x2 -> ppt mode (receive only buttons events)
 	| 0x3 Up right button  |

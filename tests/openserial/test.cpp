@@ -64,7 +64,7 @@ const char* speedName(unsigned value)
 	return "Not found";
 }
 
-struct __attribute__((packed)) StartedFrame
+struct __attribute__((packed)) SimplePacket
 {
 	unsigned char addr;
 	union
@@ -73,7 +73,7 @@ struct __attribute__((packed)) StartedFrame
 		uint16_t      cmd16;
 	};
 	
-	friend std::ostream& operator<<(std::ostream& os, const StartedFrame& af)
+	friend std::ostream& operator<<(std::ostream& os, const SimplePacket& af)
 	{
 		std::ostream::sentry init(os);
 		if (init)
@@ -85,7 +85,32 @@ struct __attribute__((packed)) StartedFrame
 		return os;
 	}
 };
-struct __attribute__((packed)) AccelFrame
+
+struct __attribute__((packed)) StatusPacket
+{
+	unsigned char addr;
+	union
+	{
+		unsigned char cmd[2];
+		uint16_t      cmd16;
+	};
+	char status;
+	
+	friend std::ostream& operator<<(std::ostream& os, const StatusPacket& af)
+	{
+		std::ostream::sentry init(os);
+		if (init)
+		{
+			os << "addr=" << (int)af.addr
+				<< " cmd=0x" << std::setfill('0') << std::setw(4)
+				<< std::hex << (int)af.cmd16 << std::dec
+				<< " status=" << (int)af.status;
+		}
+		return os;
+	}
+};
+
+struct __attribute__((packed)) AccelPacket
 {
 	unsigned char addr;
 	union
@@ -97,18 +122,18 @@ struct __attribute__((packed)) AccelFrame
 	{
 		struct
 		{
-			unsigned char withPos:4;
+			unsigned char curMode:4;
 			unsigned char btnCode:4;
 		};
 		unsigned char status;
 	};
-	unsigned char x;
-	unsigned char y;
-	unsigned char z;
+	char x;
+	char y;
+	char z;
 
 	bool isEmpty() { return status == 0xFF; }
 
-	friend std::ostream& operator<<(std::ostream& os, const AccelFrame& af)
+	friend std::ostream& operator<<(std::ostream& os, const AccelPacket& af)
 	{
 		std::ostream::sentry init(os);
 		if (init)
@@ -117,20 +142,20 @@ struct __attribute__((packed)) AccelFrame
 				<< " cmd=0x" << std::setfill('0') << std::setw(4)
 				<< std::hex << (int)af.cmd16 << std::dec
 				<< " btnCode=" << (int)af.btnCode
-				<< " withPos=" << (int)af.withPos
-				//<< " x=" << (int)af.x << " y=" << (int)af.y << " z=" << (int)af.z
-				<< " x%=" << af.x * 100 / 255
+				<< " curMode=" << (int)af.curMode
+				<< " x=" << (int)af.x << " y=" << (int)af.y << " z=" << (int)af.z
+				/*<< " x%=" << af.x * 100 / 255
 				<< " y%=" << af.y * 100 / 255
-				<< " z%=" << af.z * 100 / 255
+				<< " z%=" << af.z * 100 / 255*/
 				;
 		}
 		return os;
 	}
 };
 
-AccelFrame readAccFrame(int fd)
+AccelPacket readAccPacket(int fd)
 {
-	AccelFrame af;
+	AccelPacket af;
 	assert(sizeof(af) == 7);
 	int ret = read(fd, &af, sizeof(af));
 	if (ret != sizeof(af))
@@ -142,9 +167,9 @@ AccelFrame readAccFrame(int fd)
 	return af;
 }
 
-StartedFrame readStartedFrame(int fd)
+SimplePacket readSimplePacket(int fd)
 {
-	StartedFrame sf;
+	SimplePacket sf;
 	assert(sizeof(sf) == 3);
 	int ret = read(fd, &sf, sizeof(sf));
 	if (ret != sizeof(sf))
@@ -154,7 +179,46 @@ StartedFrame readStartedFrame(int fd)
 	return sf;
 }
 
+StatusPacket readStatusPacket(int fd)
+{
+	StatusPacket sf;
+	int ret = read(fd, &sf, sizeof(sf));
+	if (ret != sizeof(sf))
+		std::cout << __func__ << " ret: " << ret << std::endl;
+	if (ret < 0)
+		perror(0);
+	return sf;
+}
+
 #define ADDR 0xFF
+
+bool resetHW(int fd, char addr = ADDR)
+{
+	std::cout << "Reseting access point..." << std::endl;
+
+	static const char msg[] = { addr, 0x01, 0x03 };
+	int ret = write(fd, msg, sizeof(msg));
+	if (ret != sizeof(msg))
+		std::cout << __func__ << " ret write: " << ret << std::endl;
+	if (ret < 0)
+		perror("status will be not read");
+	else
+	{
+		SimplePacket sp = readSimplePacket(fd);
+		std::cout << "response: " << sp << std::endl;
+	}
+}
+
+bool startAccessPointSyncMode(int fd, char addr = ADDR)
+{
+	std::cout << "Starting access point... SYNC mode" << std::endl;
+	static const char msg[] = { addr, 0x30, 0x03 };
+	int ret = write(fd, msg, sizeof(msg));
+	if (ret != sizeof(msg))
+		std::cout << __func__ << " ret: " << ret << std::endl;
+	if (ret < 0)
+		perror(0);
+}
 
 bool startAccessPoint(int fd, char addr = ADDR)
 {
@@ -189,7 +253,23 @@ bool accDataRequest(int fd, char addr = ADDR)
 		perror(0);
 }
 
-void doTest(const char* line, bool stop = false)
+void readAndPrintStatus(int fd, char addr = ADDR)
+{
+	std::cout << "Reading hw status..." << std::endl;
+	static const char msg[] = { addr, 0x00, 0x04, 0x00 };
+	int ret = write(fd, msg, sizeof(msg));
+	if (ret != sizeof(msg))
+		std::cout << __func__ << " ret: " << ret << std::endl;
+	if (ret < 0)
+		perror("status will be not read");
+	else
+	{
+		StatusPacket sp = readStatusPacket(fd);
+		std::cout << "status: " << sp << std::endl;
+	}
+}
+
+void doTest(const char* line, int action)
 {
 	int fd = open(line, O_RDWR);
 	if (fd < 0)
@@ -236,26 +316,46 @@ ok:
 	speed = cfgetospeed(&ios);
 	std::cout << "current out bps -> " << speedName(speed) << std::endl;
 
-	if (!stop)
+	readAndPrintStatus(fd);
+	switch (action)
 	{
-		startAccessPoint(fd);
-		StartedFrame sf = readStartedFrame(fd);
-		std::cout << sf << std::endl;
+		case 0:
+			{
+				startAccessPoint(fd);
+				SimplePacket sf = readSimplePacket(fd);
+				std::cout << sf << std::endl;
+				readAndPrintStatus(fd);
 
-		for (;;)
-		{
-			accDataRequest(fd);
-			AccelFrame af = readAccFrame(fd);
-			if (!af.isEmpty())
-				std::cout << af << std::endl;
-		}
+				for (;;)
+				{
+					break;
+					accDataRequest(fd);
+					AccelPacket af = readAccPacket(fd);
+					if (!af.isEmpty())
+						std::cout << af << std::endl;
+					readAndPrintStatus(fd);
+				}
+				break;
+			}
+		case 1:
+			{
+				stopAccessPoint(fd);
+				SimplePacket sf = readSimplePacket(fd);
+				std::cout << sf << std::endl;
+				break;
+			}
+		case 2:
+			{
+				resetHW(fd);
+				break;
+			}
+		case 3:
+			{
+				readAndPrintStatus(fd);
+				break;
+			}
 	}
-	if (stop)
-	{
-		stopAccessPoint(fd);
-		StartedFrame sf = readStartedFrame(fd);
-		std::cout << sf << std::endl;
-	}
+	readAndPrintStatus(fd);
 	close(fd);
 }
 
@@ -263,9 +363,20 @@ int main(int argc, char const* argv[])
 {
 	if (argc < 2)
 	{
-		std::cout << "usage: " << argv[0] << " /dev/ttyS0 [STOP]" << std::endl;
+		std::cout << "usage: " << argv[0] << " /dev/ttyS0 [stop|reset|status]" << std::endl;
 		return -1;
 	}
-	doTest(argv[1], argc == 3);
+	int action = 0;
+	if (argc == 3)
+	{
+		std::string an = argv[2];
+		if (an == "stop")
+			action = 1;
+		else if (an == "reset")
+			action = 2;
+		else if (an == "status")
+			action = 3;
+	}
+	doTest(argv[1], action);
 	return 0;
 }

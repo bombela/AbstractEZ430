@@ -51,7 +51,7 @@ set exit_prog 0
 package require Tk
 
 # Set COM port where RF access point is mounted
-set com "/dev/ttyACM1"
+set com "/dev/ttyACM0"
 
 # Include BlueRobin BM-USBD1 driver
 # This script file replaces the Windows DLL and adds the global handle "vcp" for the COM channel
