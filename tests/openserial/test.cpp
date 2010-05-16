@@ -429,8 +429,30 @@ ok:
 		case 6:
 			{
 				sendData(fd, data);
-				SimplePacket sf = readSimplePacket(fd);
-				std::cout << sf << std::endl;
+				if (data == "3203")
+				{
+					StatusPacket sf = readStatusPacket(fd);
+					std::cout << "sent response for data (status) " << data << " : " << sf << std::endl;
+				}
+				else if (data == "3303")
+				{
+					SimplePacket sf = readSimplePacket(fd);
+					std::cout << "sent response for data " << data << " : " << sf << std::endl;
+					int i = 0;
+					int r;
+					do
+					{
+						char c;
+						r = read(fd, &c, 1);
+						if (r > 0)
+							std::cout << i++ << " value: " << (int)c << std::endl;
+					} while (r > 0 && i <= 18);
+				}
+				else
+				{
+					SimplePacket sf = readSimplePacket(fd);
+					std::cout << "sent response for data " << data << " : " << sf << std::endl;
+				}
 				break;
 			}
 		case 7:
