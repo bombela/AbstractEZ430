@@ -125,7 +125,7 @@ struct __attribute__((packed)) SyncPacket
 				<< " temp=" << af.temperature / 10.0f
 				<< " alt=" << (int)af.altitude;
 			os << " padding=";
-			int i = 0;
+			unsigned i = 0;
 			goto start;
 			for (; i < sizeof(padding); ++i)
 			{
@@ -270,6 +270,7 @@ bool resetHW(int fd, char addr = ADDR)
 		SimplePacket sp = readSimplePacket(fd);
 		std::cout << "response: " << sp << std::endl;
 	}
+	return (ret == sizeof(msg));
 }
 
 bool sendData(int fd, const std::string& data, char addr = ADDR)
@@ -279,8 +280,8 @@ bool sendData(int fd, const std::string& data, char addr = ADDR)
 	int len = data.size() / 2 + 1;
 	char msg[len];
 	msg[0] = addr;
-	int j = 1;
-	for (int i = 0; i < data.size(); i += 2)
+	unsigned j = 1;
+	for (unsigned i = 0; i < data.size(); i += 2)
 	{
 		std::string str;
 		str.push_back(data[i]);
@@ -298,6 +299,7 @@ bool sendData(int fd, const std::string& data, char addr = ADDR)
 		perror(0);
 	else
 		std::cout << "sent!" << std::endl;
+	return true;
 }
 
 bool startAccessPointSyncMode(int fd, char addr = ADDR)
@@ -309,6 +311,7 @@ bool startAccessPointSyncMode(int fd, char addr = ADDR)
 		std::cout << __func__ << " ret: " << ret << std::endl;
 	if (ret < 0)
 		perror(0);
+	return true;
 }
 
 bool startAccessPoint(int fd, char addr = ADDR)
@@ -320,6 +323,7 @@ bool startAccessPoint(int fd, char addr = ADDR)
 		std::cout << __func__ << " ret: " << ret << std::endl;
 	if (ret < 0)
 		perror(0);
+	return true;
 }
 
 bool stopAccessPoint(int fd, char addr = ADDR)
@@ -331,6 +335,7 @@ bool stopAccessPoint(int fd, char addr = ADDR)
 		std::cout << __func__ << " ret: " << ret << std::endl;
 	if (ret < 0)
 		perror(0);
+	return true;
 }
 
 bool accDataRequest(int fd, char addr = ADDR)
@@ -342,6 +347,7 @@ bool accDataRequest(int fd, char addr = ADDR)
 		std::cout << __func__ << " ret: " << ret << std::endl;
 	if (ret < 0)
 		perror(0);
+	return true;
 }
 
 void readAndPrintStatus(int fd, char addr = ADDR, bool r = true)
@@ -556,7 +562,7 @@ int main(int argc, char const* argv[])
 		std::string an = argv[2];
 
 		action = -1;
-		for (int i = 0; i < sizeof(cmds) / sizeof(*cmds); ++i)
+		for (unsigned i = 0; i < sizeof(cmds) / sizeof(*cmds); ++i)
 		{
 			if (cmds[i] == an)
 			{

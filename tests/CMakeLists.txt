@@ -5,3 +5,4 @@
 #
 
 add_subdirectory(openserial)
+add_subdirectory(ap)

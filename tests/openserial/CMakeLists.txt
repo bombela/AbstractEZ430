@@ -4,6 +4,6 @@
 #
 #
 
-add_executable(test
+add_executable(openserial
 	test.cpp
 	)

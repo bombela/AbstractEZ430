@@ -8,6 +8,11 @@
 #ifndef AP_H
 #define AP_H
 
+#include <ez430_watch/service.h>
+
+#include <string>
+#include <vector>
+
 namespace ez430 {
 
 class AccessPoint
@@ -17,17 +22,18 @@ class AccessPoint
 
 		~AccessPoint();
 		AccessPoint();
-		AccessPoint(std::string line);
+		AccessPoint(const std::string& line);
 
-		void open(std::string line);
+		void open(const std::string& line);
 		bool isOpen() const;
+		void close();
 
 		void startRadio();
 		void stopRadio();
 		
-		State getRadioState();
+		RadioState getRadioState();
 
-		WatchService& getService();
+		protocol::Service& getService();
 
 		static std::vector<std::string> probeLines();
 
