@@ -5,6 +5,7 @@
 */
 
 #include <ez430_watch/ap.h>
+#include <boost/asio.hpp>
 
 namespace ez430 {
 
@@ -13,36 +14,40 @@ class Implementation
 	public:
 		~Implementation()
 		{
+			close();
 		}
 
 		Implementation():
-			_isOpen(false)
+			_serialPort(_ioService)
 		{
 		}
 
 		Implementation(const std::string& line):
-			_isOpen(false)
+			_serialPort(_ioService)
 		{
 			open(line);
 		}
 
 		void open(const std::string& line)
 		{
-			if (_isOpen)
+			if (isOpen())
 				close();
+			_serialPort.open(line);
 		}
 
 		bool isOpen() const
 		{
-			return false;
+			return _serialPort.is_open();
 		}
 
 		void close()
 		{
+			_serialPort.close();
 		}
 
 	private:
-		bool _isOpen;
+		boost::asio::io_service  _ioService;
+		boost::asio::serial_port _serialPort;
 };
 
 AccessPoint::~AccessPoint()
