@@ -87,7 +87,22 @@ class Implementation
 				default:
 						return AccessPoint::STOPPED;
 			}
+		}
+		
+		void startRadio()
+		{
+			packet::Base packet
+				= createPacket<packet::Base>(packet::BM_START_SIMPLICITI);
+			write(_serialPort, buffer(packet));
+			read(_serialPort, buffer(packet));
+		}
 
+		void stopRadio()
+		{
+			packet::Base packet
+				= createPacket<packet::Base>(packet::BM_STOP_SIMPLICITI);
+			write(_serialPort, buffer(packet));
+			read(_serialPort, buffer(packet));
 		}
 
 	private:
@@ -121,5 +136,7 @@ bool AccessPoint::isOpen() const { return _impl->isOpen(); }
 void AccessPoint::close() { _impl->close(); }
 int AccessPoint::getProductId() const { return _impl->getProductId(); }
 AccessPoint::RadioState AccessPoint::getRadioState() { return _impl->getRadioState(); }
+void AccessPoint::startRadio() { _impl->startRadio(); }
+void AccessPoint::stopRadio() { _impl->stopRadio(); }
 
 } // namespace ez
