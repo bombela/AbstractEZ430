@@ -28,6 +28,8 @@ class AccessPoint
 		bool isOpen() const;
 		void close();
 
+		int getProductId() const;
+
 		void startRadio();
 		void stopRadio();
 		

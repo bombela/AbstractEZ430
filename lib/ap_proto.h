@@ -8,15 +8,18 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+#include <ez430_watch/packed.h>
+#include <ostream>
+
 namespace ez430 {
 namespace protocol {
-namespace packet {
 namespace ap {
+namespace packet {
 
 enum {
-	MAGIC    = 0xFF;
-	MIN_SIZE = 3;
-	MAX_SIZE = 32;
+	MAGIC    = 0xFF,
+	MIN_SIZE = 3,
+	MAX_SIZE = 32
 };
 
 enum {
@@ -33,16 +36,25 @@ enum {
 	BM_SYNC_READ_BUFFER	      = 0x33
 };
 
-struct PACKED(Base)
+struct PACKED Base
 {
 	uint8_t magic;
 	uint8_t cmd;
 	uint8_t size;
 
 	bool isValid() { return magic == MAGIC; }
+
+	void print(std::ostream& os) const
+	{
+		os << std::hex
+			<< "magic=" << (unsigned int)magic
+			<< " cmd=" << (unsigned int)cmd
+			<< " size=" << (unsigned int)size
+			<< std::dec;
+	}
 };
 
-struct PACKED(Status): Base
+struct PACKED Status: Base
 {
 	enum {
 		HW_IDLE                      = 0x00,
@@ -65,7 +77,7 @@ struct PACKED(Status): Base
 	uint8_t status;
 };
 
-struct PACKED(Motion): Base
+struct PACKED Motion: Base
 {
 	enum {
 		SIMPLICITI_BUTTON_STAR  = 0x10,
@@ -99,7 +111,7 @@ struct PACKED(Motion): Base
 	bool isEmpty() { return status == EMPTY_STATUS; }
 };
 
-struct PACKED(SyncStatus): Base
+struct PACKED SyncStatus: Base
 {
 	enum {
 		SYNC_BUFFER_EMPTY = 0,
@@ -109,8 +121,42 @@ struct PACKED(SyncStatus): Base
 	uint8_t syncStatus;
 };
 
-} // namespace ap
+struct PACKED ProductId: Base
+{
+	uint32_t productId;
+	
+	void print(std::ostream& os) const
+	{
+		Base::print(os);
+		os << std::hex << " productId=" << productId << std::dec;
+	}
+};
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const T& packet)
+{
+	std::ostream::sentry init(os);
+	if (init)
+	{
+		packet.print(os);
+	}
+	return os;
+}
+
 } // namespace packet
+
+template <typename T>
+T createPacket(uint8_t cmd)
+{
+	T packet;
+
+	packet.magic = packet::MAGIC;
+	packet.cmd = cmd;
+	packet.size = sizeof(packet);
+	return packet;
+}
+
+} // namespace ap
 } // namespace protocol
 } // namespace ez430
 

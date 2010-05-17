@@ -8,7 +8,7 @@
 #ifndef PACKED_H
 #define PACKED_H
 
-#ifdef GNUC_COMPILER
+#ifdef __GNUG__
 	#define PACKED __attribute__((packed))
 #elif VISUAL_COMPILER
 	#define PACKED __declspec(align(8))

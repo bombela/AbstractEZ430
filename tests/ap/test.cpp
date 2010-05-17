@@ -30,5 +30,8 @@ int main(int argc, char const* argv[])
 		std::cout << "not open !" << std::endl;
 		return -1;
 	}
+
+	std::cout << std::hex << "product id: " << ap.getProductId() << std::dec << std::endl;
+	std::cout << "current radio state: " << ap.getRadioState() << std::endl;
 	return 0;
 }
