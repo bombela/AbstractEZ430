@@ -11,6 +11,7 @@
 #include <ez430_watch/service.h>
 #include <vector>
 #include <string>
+#include <ostream>
 
 namespace ez430 {
 
@@ -38,6 +39,8 @@ struct Motion
 	int    x;
 	int    y;
 	int    z;
+
+	friend std::ostream& operator<<(std::ostream& os, const Motion& motion);
 };
 
 class Watch
