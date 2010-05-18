@@ -21,17 +21,22 @@ class Implementation
 		Motion         getMotion()
 		{
 			protocol::MotionData md;
-			while (!_service.getMotion(md))
+			int retry = 10;
+			while (--retry && !_service.getMotion(md))
 				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-			//throw std::runtime_error("no motion data available");
+			if (retry == 0)
+				throw std::runtime_error("motion data retrieving timeout excessed");
 			return reinterpret_cast<Motion&>(md);
 		}
 
 		Motion::Button getButton()
 		{
 			protocol::MotionData md;
-			if (!_service.getMotion(md))
-				throw std::runtime_error("no motion data available");
+			int retry = 10;
+			while (--retry && !_service.getMotion(md))
+				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			if (retry == 0)
+				throw std::runtime_error("motion data retrieving timeout excessed");
 			return static_cast<Motion::Button>(md.button);
 		}
 
