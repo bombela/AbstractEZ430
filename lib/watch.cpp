@@ -14,7 +14,8 @@ class Implementation
 {
 	public:
 		Implementation(protocol::Service& service):
-			_service(service)
+			_service(service),
+			_lastButton(Motion::NONE)
 		{
 		}
 		
@@ -32,16 +33,14 @@ class Implementation
 		Motion::Button getButton()
 		{
 			protocol::MotionData md;
-			int retry = 50;
-			while (--retry && !_service.getMotion(md))
-				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-			if (retry == 0)
-				throw std::runtime_error("motion data retrieving timeout excessed");
-			return static_cast<Motion::Button>(md.button);
+			if (_service.getMotion(md))
+				return static_cast<Motion::Button>(md.button);
+			return Motion::NONE;
 		}
 
 	private:
 		protocol::Service& _service;
+		Motion::Button     _lastButton;
 };
 
 // PIMPL IDIOM

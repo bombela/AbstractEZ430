@@ -70,6 +70,22 @@ int main(int argc, char const* argv[])
 				}
 			}
 		}
+		else if (arg == "ppt")
+		{
+			std::cout << "Retrieving ppt..." << std::endl;
+			for (;;)
+			{
+				try
+				{
+					Motion::Button button = watch.getButton();
+					std::cout << "Button: " << button << std::endl;
+				}
+				catch (const std::runtime_error&)
+				{
+					std::cout << "timeout" << std::endl;
+				}
+			}
+		}
 	}
 	std::cout << "bye..." << std::endl;
 	return 0;
