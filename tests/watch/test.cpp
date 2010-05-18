@@ -8,6 +8,7 @@
 #include <ez430_watch/watch.h>
 
 #include <iostream>
+#include <stdexcept>
 
 using namespace ez430;
 
@@ -58,8 +59,15 @@ int main(int argc, char const* argv[])
 			std::cout << "Retrieving acc..." << std::endl;
 			for (;;)
 			{
-				Motion motion = watch.getMotion();
-				std::cout << motion << std::endl;
+				try
+				{
+					Motion motion = watch.getMotion();
+					std::cout << motion << std::endl;
+				}
+				catch (const std::runtime_error&)
+				{
+					std::cout << "timeout" << std::endl;
+				}
 			}
 		}
 	}

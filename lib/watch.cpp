@@ -21,7 +21,7 @@ class Implementation
 		Motion         getMotion()
 		{
 			protocol::MotionData md;
-			int retry = 10;
+			int retry = 50;
 			while (--retry && !_service.getMotion(md))
 				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 			if (retry == 0)
@@ -32,7 +32,7 @@ class Implementation
 		Motion::Button getButton()
 		{
 			protocol::MotionData md;
-			int retry = 10;
+			int retry = 50;
 			while (--retry && !_service.getMotion(md))
 				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 			if (retry == 0)

@@ -54,16 +54,19 @@ bool ApService::getMotion(MotionData& d)
 	return true;
 }
 
-bool ApService::getSyncData(SyncData& d)
+bool ApService::getSyncData(SyncData&)
 {
+	throw "not implemented";
 }
 
-bool ApService::setSyncData(const SyncData& d)
+bool ApService::setSyncData(const SyncData&)
 {
+	throw "not implemented";
 }
 
 bool ApService::exitWatchSync()
 {
+	throw "not implemented";
 }
 
 } // namespace protocol
