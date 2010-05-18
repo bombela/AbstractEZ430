@@ -7,3 +7,4 @@
 add_subdirectory(openserial)
 add_subdirectory(ap)
 add_subdirectory(watch)
+add_subdirectory(pywatch)

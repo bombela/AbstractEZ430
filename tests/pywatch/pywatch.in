@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# tests/pywatch/pywatch
+# Copyright © 2010 François-Xavier 'Bombela' Bourlet <bombela@gmail.com>
+#
+#
+
+EZ430_BINDING_PYTHON_PATH="@EZ430_BINDING_PYTHON_PATH@"
+PYWATCHPY="@PYWATCHPY@"
+
+PYTHONPATH="${EZ430_BINDING_PYTHON_PATH}:${PYTHONPATH}"
+export PYTHONPATH
+exec python2.6 "${PYWATCHPY}"
