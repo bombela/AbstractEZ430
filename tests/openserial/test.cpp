@@ -127,7 +127,7 @@ struct __attribute__((packed)) SyncPacket
 			os << " padding=";
 			unsigned i = 0;
 			goto start;
-			for (; i < sizeof(padding); ++i)
+			for (; i < sizeof(af.padding); ++i)
 			{
 				os << ",";
 start:
