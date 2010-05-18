@@ -26,6 +26,7 @@ if ap.isOpen():
 		ap.startRadio()
 
 watch = ez430.Watch(ap.getService())
+watch.setSmooth(0.40)
 
 class MotionThread(Thread):
 	def __init__ (self):
@@ -38,7 +39,7 @@ class MotionThread(Thread):
 			print "Access point not open... stop thread"
 			return
 		while self.running:
-			time.sleep(0.5)
+			time.sleep(0.1)
 			try:
 				self.motion = False
 				motion = watch.getMotion()
@@ -72,25 +73,16 @@ class Weapon(soya.Body):
 		self.rotation_z_speed = 0.
 		self.solid = 0
 		self.lastmotion = ez430.Motion()
+
 	# Gestion des events
 	def begin_round(self):
 		soya.Body.begin_round(self)
 		motion = motionThread.motion
 		if motion != False:
-			self.turn_x(motion.x * 2. * 0.2 + self.lastmotion.x * 0.1)
-			self.turn_y(motion.y * 2. * 0.2 + self.lastmotion.y * 0.1)
-			self.turn_z(motion.z * 2. * 0.2 + self.lastmotion.z * 0.1)
-			self.lastmotion = motion
-
-        
-	def begin_round(self):
-		soya.Body.begin_round(self)
-		motion = motionThread.motion
-		if motion != False:
-			self.turn_x(motion.x * 2. * 0.2 + self.lastmotion.x * 0.1)
-			self.turn_y(motion.y * 2. * 0.2 + self.lastmotion.y * 0.1)
-			self.turn_z(motion.z * 2. * 0.2 + self.lastmotion.z * 0.1)
-			self.lastmotion = motion
+			#self.turn_x(motion.x * 2.20)
+			if abs(motion.y) > 2:
+				self.turn_y(motion.y)
+			#self.turn_z(motion.z)
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
@@ -102,8 +94,7 @@ class Weapon(soya.Body):
 	# Fonction Button 1 Pressed
 	def funcion_1(self):
 		print "Fonction Button 1 Pressed"
-		print self.old_moves
-		self.old_moves.clear()
+
 	# Fonction Button 2 Pressed
 	def funcion_2(self):
 		print "Fonction Button 2 Pressed"
