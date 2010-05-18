@@ -20,6 +20,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_library(ez430_watch SHARED
 	ap.cpp
+	ap_service.cpp
+	watch.cpp
 	)
 
 target_link_libraries(ez430_watch ${Boost_LIBRARIES})

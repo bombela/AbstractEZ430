@@ -28,7 +28,7 @@ struct SyncData
 
 struct MotionData
 {
-	enum Button { NONE, STAR, SHARP, UP };
+	enum Button { NONE, STAR, NUM, UP };
 
 	Button button;
 

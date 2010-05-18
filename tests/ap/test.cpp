@@ -48,6 +48,15 @@ int main(int argc, char const* argv[])
 			ap.stopRadio();
 		}
 	}
+	else
+	{
+		std::cout << "Starting radio..." << std::endl;
+		ap.startRadio();
+		std::cout << "Waiting 3 seconds..." << std::endl;
+		sleep(3);
+		std::cout << "Stopping radio..." << std::endl;
+		ap.stopRadio();
+	}
 	std::cout << "bye..." << std::endl;
 	return 0;
 }

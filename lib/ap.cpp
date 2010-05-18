@@ -8,22 +8,12 @@
 #include <ez430_watch/ap.h>
 #include <boost/asio.hpp>
 #include "ap_proto.h"
+#include "ap_service.h"
 
 namespace ez430 {
 
 using namespace protocol::ap;
-
-template <typename T>
-boost::asio::const_buffers_1 buffer(const T& packet)
-{
-	return boost::asio::buffer(&packet, sizeof(packet));
-}
-
-template <typename T>
-boost::asio::mutable_buffers_1 buffer(T& packet)
-{
-	return boost::asio::buffer(&packet, sizeof(packet));
-}
+using protocol::buffer;
 
 class Implementation
 {
@@ -34,12 +24,14 @@ class Implementation
 		}
 
 		Implementation():
-			_serialPort(_ioService)
+			_serialPort(_ioService),
+			_apService(_serialPort)
 		{
 		}
 
 		Implementation(const std::string& line):
-			_serialPort(_ioService)
+			_serialPort(_ioService),
+			_apService(_serialPort)
 		{
 			open(line);
 		}
@@ -71,8 +63,8 @@ class Implementation
 		{
 			packet::Status packet
 				= createPacket<packet::Status>(packet::BM_GET_STATUS);
-			write(_serialPort, buffer(packet));
-			read(_serialPort, buffer(packet));
+			boost::asio::write(_serialPort, buffer(packet));
+			boost::asio::read(_serialPort, buffer(packet));
 		
 			switch (packet.status)
 			{
@@ -93,44 +85,43 @@ class Implementation
 		{
 			packet::Base packet
 				= createPacket<packet::Base>(packet::BM_START_SIMPLICITI);
-			write(_serialPort, buffer(packet));
-			read(_serialPort, buffer(packet));
+			boost::asio::write(_serialPort, buffer(packet));
+			boost::asio::read(_serialPort, buffer(packet));
 		}
 
 		void stopRadio()
 		{
 			packet::Base packet
 				= createPacket<packet::Base>(packet::BM_STOP_SIMPLICITI);
-			write(_serialPort, buffer(packet));
-			read(_serialPort, buffer(packet));
+			boost::asio::write(_serialPort, buffer(packet));
+			boost::asio::read(_serialPort, buffer(packet));
+		}
+
+		protocol::Service& getService()
+		{
+			return _apService;
 		}
 
 	private:
 		boost::asio::io_service  _ioService;
 		boost::asio::serial_port _serialPort;
 		int                      _productId;
+		protocol::ApService      _apService;
 
 		void retrieveProductId()
 		{
 			packet::ProductId packet
 				= createPacket<packet::ProductId>(packet::BM_GET_PRODUCT_ID);
-			write(_serialPort, buffer(packet));
-			read(_serialPort, buffer(packet));
+			boost::asio::write(_serialPort, buffer(packet));
+			boost::asio::read(_serialPort, buffer(packet));
 			_productId = packet.productId;
 		}
 };
 
-AccessPoint::~AccessPoint()
-{
-	delete _impl;
-}
-
-AccessPoint::AccessPoint():
-	_impl(new Implementation) {}
-
-AccessPoint::AccessPoint(const std::string& line):
-	_impl(new Implementation(line)) {}
-
+// PIMPL IDIOM
+AccessPoint::~AccessPoint() { delete _impl; }
+AccessPoint::AccessPoint(): _impl(new Implementation) {} 
+AccessPoint::AccessPoint(const std::string& line): _impl(new Implementation(line)) {} 
 void AccessPoint::open(const std::string& line) { _impl->open(line); }
 bool AccessPoint::isOpen() const { return _impl->isOpen(); }
 void AccessPoint::close() { _impl->close(); }
@@ -138,5 +129,6 @@ int AccessPoint::getProductId() const { return _impl->getProductId(); }
 AccessPoint::RadioState AccessPoint::getRadioState() { return _impl->getRadioState(); }
 void AccessPoint::startRadio() { _impl->startRadio(); }
 void AccessPoint::stopRadio() { _impl->stopRadio(); }
+protocol::Service& AccessPoint::getService() { return _impl->getService(); }
 
-} // namespace ez
+} // namespace ez430

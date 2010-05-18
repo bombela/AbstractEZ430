@@ -80,9 +80,9 @@ struct PACKED Status: Base
 struct PACKED Motion: Base
 {
 	enum {
-		SIMPLICITI_BUTTON_STAR  = 0x10,
-		SIMPLICITI_BUTTON_NUM   = 0x20,
-		SIMPLICITI_BUTTON_UP    = 0x30
+		SIMPLICITI_BUTTON_STAR  = 0x1,
+		SIMPLICITI_BUTTON_NUM   = 0x2,
+		SIMPLICITI_BUTTON_UP    = 0x3
 	};
 
 	enum {

@@ -8,7 +8,9 @@
 #ifndef WATCH_H
 #define WATCH_H
 
-#include <stdexcept>
+#include <ez430_watch/service.h>
+#include <vector>
+#include <string>
 
 namespace ez430 {
 
@@ -28,7 +30,7 @@ struct Time
 
 struct Motion
 {
-	enum Button { NONE, STAR, SHARP, UP };
+	enum Button { NONE, STAR, NUM, UP };
 
 	Button button;
 
@@ -41,13 +43,11 @@ struct Motion
 class Watch
 {
 	public:
-		enum Unit { METRIC, AMERICAN }
+		enum Unit { METRIC, AMERICAN };
 
 		~Watch();
-		Watch(WatchService& ps);
+		Watch(protocol::Service& service);
 
-		Mode      getMode();
-		
 		Motion         getMotion();
 		Motion::Button getButton();
 
