@@ -24,5 +24,7 @@ target_link_libraries(ez430_watch_python
 	${PYTHON_LIBRARIES}
 	)
 
+configure_file(__init__.py __init__.py COPYONLY)
+
 set_target_properties(ez430_watch_python PROPERTIES OUTPUT_NAME "ez430")
 set_target_properties(ez430_watch_python PROPERTIES PREFIX "")
