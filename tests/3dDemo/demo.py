@@ -10,6 +10,8 @@ import soya.widget as widget
 import ez430
 import time
 from threading import Thread
+import math
+import random
 
 ap = ez430.AccessPoint()
 
@@ -67,25 +69,38 @@ class Weapon(soya.Body):
 	# Initialisation Object (constructeur)
 	def __init__(self, parent, w_name):
 		soya.Body.__init__(self, parent, soya.Model.get(w_name))
-		self.speed = soya.Vector(self, 0.0, 0.0, 0.0)
-		self.rotation_y_speed = 0.
-		self.rotation_x_speed = 0.
-		self.rotation_z_speed = 0.
+		self.speed = soya.Vector(parent, 0.0, 0.0, 0.0)
 		self.solid = 0
 		self.lastmotion = ez430.Motion()
+		self.rotation_speed = 0
+		self.a = 0 # angle
+		self.motion = motionThread.motion
 
 	# Gestion des events
 	def begin_round(self):
-		soya.Body.begin_round(self)
-		motion = motionThread.motion
+		soya.Body.begin_round(self)		
+		self.motion = motion = motionThread.motion
 		if motion != False:
-			#self.turn_x(motion.x * 2.20)
-			if abs(motion.y) > 2:
-				self.turn_y(motion.y)
-			#self.turn_z(motion.z)
+			h = math.hypot(motion.x, motion.y) # hypotenuse
+			if h != 0:
+				self.a = math.degrees(math.asin(motion.y / h))
+			else:
+				self.a = 90
+			print " x:%d" %motion.x
+			print " y:%d" %motion.y
+			print " z:%d" %motion.z
+			print " h:%d" %h
+			print " a:%d" %self.a
+			self.speed.x = motion.x
+			self.speed.y = motion.y
+			self.speed.z = motion.z
+#			self.rotation_speed = random.uniform(-25., 25.)
+			self.rotate_axis(self.a, self.speed)
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
+#		if self.motion != False:
+#			self.add_mul_vector(proportion, self.speed)
 
 	# Affichage des donnees recues
 	def aff_data(self):
@@ -102,9 +117,14 @@ class Weapon(soya.Body):
 	# Fonction Button 3 Pressed
 	def funcion_3(self):
 		print "Fonction Button 3 Pressed"
+	
+	def init_xyz(self, x, y,z):
+		self.before_x = x
+		self.before_y = y
+		self.before_z = z
 
 # Construction Vrai Sword
-weapon = Weapon(scene, "sword")
+weapon = Weapon(scene, "katana")
 
 # Parametrage Sword
 weapon.x = 0.
