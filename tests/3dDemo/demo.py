@@ -18,6 +18,18 @@
 
 import sys, os, os.path, soya, soya.sdlconst
 import soya.widget as widget
+import ez430
+
+ap = ez430.AccessPoint()
+
+# ugly detection, yes...
+try:
+	if os.name == "posix":
+		ap.open("/dev/ttyACM0")
+except (RuntimeError):
+	print "Unable to connect to watch access point..."
+
+watch = ez430.Watch(ap.getService())
 
 # Initialisation
 soya.init()
