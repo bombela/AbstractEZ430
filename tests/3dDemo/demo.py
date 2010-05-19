@@ -77,12 +77,23 @@ class Weapon(soya.Body):
 	# Gestion des events
 	def begin_round(self):
 		soya.Body.begin_round(self)
+
+		o = soya.Body()
+		for event in soya.MAIN_LOOP.events:
+			if event[0] == soya.sdlconst.KEYUP:
+				if event[1] == soya.sdlconst.K_UP:
+					o.set_xyz(self.x, self.y + 10, self.z)
+					self.look_at(o)
+				if event[1] == soya.sdlconst.K_DOWN:
+					o.set_xyz(self.x, self.y - 10, self.z)
+					self.look_at(o)
+
 		motion = motionThread.motion
 		if motion != False:
-			#self.turn_x(motion.x * 2.20)
-			if abs(motion.y) > 2:
-				self.turn_y(motion.y)
-			#self.turn_z(motion.z)
+			pass
+			#o = soya.Body()
+			#o.set_xyz(self.x, self.y, self.z)
+			#self.look_at(o)
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
@@ -104,14 +115,14 @@ class Weapon(soya.Body):
 		print "Fonction Button 3 Pressed"
 
 # Construction Vrai Sword
-weapon = Weapon(scene, "sword")
+weapon = Weapon(scene, "katana")
 
 # Parametrage Sword
 weapon.x = 0.
 weapon.y = 0.
 weapon.z = 20.
-#sword.rotate_y(90.0)
-#sword.rotate_z(-90.0)
+#weapon.rotate_z(90.0)
+#weapon.rotate_y(90.0)
 
 # Gestion de la lumiere
 light = soya.Light(scene)
@@ -138,7 +149,7 @@ scene.atmosphere.fog_color = (0.3, 0.3, 0.4, 1.0)
 camera = soya.Camera(scene)
 camera.x = 0.
 camera.y = 0.
-camera.z = 5.
+camera.z = 0.
 
 camera.look_at(weapon)
 

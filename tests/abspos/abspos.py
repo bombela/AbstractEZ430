@@ -6,6 +6,8 @@
 #
 
 import ez430
+import Gnuplot, Gnuplot.funcutils
+from numpy import *
 
 ap = ez430.AccessPoint()
 
