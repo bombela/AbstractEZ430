@@ -15,6 +15,7 @@ if ap.getRadioState() == ez430.RadioState.STOPPED:
 	ap.startRadio()
 
 watch = ez430.Watch(ap.getService())
+watch.setSmooth(0.80)
 
 try:
 	while 1:
@@ -25,4 +26,4 @@ try:
 		except RuntimeError:
 			print "Link timeout... retry !"
 except (KeyboardInterrupt, SystemExit):
-	print "loez"
+	pass
