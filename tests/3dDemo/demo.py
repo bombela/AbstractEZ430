@@ -20,6 +20,7 @@ import sys, os, os.path, soya, soya.sdlconst
 import soya.widget as widget
 import ez430
 import time
+import math
 from threading import Thread
 
 ap = ez430.AccessPoint()
@@ -37,6 +38,7 @@ if ap.isOpen():
 		ap.startRadio()
 
 watch = ez430.Watch(ap.getService())
+watch.setSmooth(0.40)
 
 class MotionThread(Thread):
 	def __init__ (self):
@@ -49,7 +51,7 @@ class MotionThread(Thread):
 			print "Access point not open... stop thread"
 			return
 		while self.running:
-			time.sleep(0.5)
+			time.sleep(0.1)
 			try:
 				self.motion = False
 				motion = watch.getMotion()
@@ -80,7 +82,6 @@ class ArticulateSword(soya.Body):
 		self.rotation_x_speed = 0.0
 		self.rotation_z_speed = 0.0
 		self.solid = 0
-		self.lastmotion = ez430.Motion()
         
 	def begin_round(self):
 		soya.Body.begin_round(self)
@@ -107,10 +108,10 @@ class ArticulateSword(soya.Body):
 
 		motion = motionThread.motion
 		if motion != False:
-			self.turn_x(motion.x * 2. * 0.2 + self.lastmotion.x * 0.1)
-			self.turn_y(motion.y * 2. * 0.2 + self.lastmotion.y * 0.1)
-			self.turn_z(motion.z * 2. * 0.2 + self.lastmotion.z * 0.1)
-			self.lastmotion = motion
+			#self.turn_x(motion.x * 2.20)
+			if abs(motion.y) > 2:
+				self.turn_y(motion.y)
+			#self.turn_z(motion.z)
 
 		#self.rotate_x(self.rotation_x_speed)
 		#self.rotate_y(self.rotation_y_speed)
@@ -132,7 +133,7 @@ sword = ArticulateSword(scene)
 # Parametrage Sword
 sword.x = 0.
 sword.y = 0.
-sword.z = 20.
+sword.z = 25.
 #sword.rotate_y(90.0)
 #sword.rotate_z(-90.0)
 
