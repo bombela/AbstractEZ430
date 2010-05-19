@@ -42,6 +42,9 @@ class Implementation
 				close();
 			_serialPort.open(line);
 			retrieveProductId();
+
+			// Clear AccessPoint motion buffer.
+			{ protocol::MotionData m; _apService.getMotion(m); }
 		}
 
 		bool isOpen() const
