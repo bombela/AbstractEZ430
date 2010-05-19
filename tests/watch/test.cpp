@@ -9,8 +9,26 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <iomanip>
+
+#include <stdint.h>
 
 using namespace ez430;
+
+static const uint16_t mgrav_per_bit[7] = { 18, 36, 71, 143, 286, 571, 1142 };
+
+float convert_acceleration_value_to_mgrav(int value)
+{
+	if (value < 0)
+		value = -value;
+	
+	float result = 0;
+	for (int i = 0; i < 7; ++i)
+		if (value & (1 << i))
+			result += mgrav_per_bit[i];
+	
+	return result / 1000;
+}
 
 int main(int argc, char const* argv[])
 {
@@ -41,6 +59,8 @@ int main(int argc, char const* argv[])
 
 	Watch watch(ap.getService());
 
+	watch.setSmooth(0.80);
+
 	if (argc > 2)
 	{
 		std::string arg = argv[2];
@@ -62,7 +82,30 @@ int main(int argc, char const* argv[])
 				try
 				{
 					Motion motion = watch.getMotion();
-					std::cout << motion << std::endl;
+
+					float gx = convert_acceleration_value_to_mgrav(motion.x);
+					float gy = convert_acceleration_value_to_mgrav(motion.y);
+					float gz = convert_acceleration_value_to_mgrav(motion.z);
+
+					static float max_gx = gx;
+					static float max_gy = gy;
+					static float max_gz = gz;
+
+					if (gx > max_gx)
+						max_gx = gx;
+					if (gy > max_gy)
+						max_gy = gy;
+					if (gz > max_gz)
+						max_gz = gz;
+
+					std::cout << std::setprecision(2) << motion
+						<< " gx=" << gx
+						<< " gy=" << gy
+						<< " gz=" << gz
+						<< " mgx=" << max_gx
+						<< " mgy=" << max_gy
+						<< " mgz=" << max_gz
+						<< std::endl;
 				}
 				catch (const std::runtime_error&)
 				{

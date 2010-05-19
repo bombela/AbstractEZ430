@@ -52,7 +52,8 @@ class MotionThread(Thread):
 			time.sleep(0.5)
 			try:
 				self.motion = False
-				self.motion = watch.getMotion()
+				motion = watch.getMotion()
+				self.motion = motion
 			except (RuntimeError):
 				print "Watch not connected ?"
 

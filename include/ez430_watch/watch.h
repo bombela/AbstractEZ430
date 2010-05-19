@@ -51,6 +51,9 @@ class Watch
 		~Watch();
 		Watch(protocol::Service& service);
 
+		float getSmooth() const;
+		void setSmooth(float value);
+		
 		Motion         getMotion();
 		Motion::Button getButton();
 

@@ -51,6 +51,8 @@ BOOST_PYTHON_MODULE(_ez430)
 		;
 
 	class_<Watch>("Watch", init<Service&>())
+		.def("getSmooth", &Watch::getSmooth)
+		.def("setSmooth", &Watch::setSmooth)
 		.def("getMotion", &Watch::getMotion)
 		.def("getButton", &Watch::getButton)
 		;
