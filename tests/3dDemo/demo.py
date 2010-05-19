@@ -79,36 +79,45 @@ class ArticulateSword(soya.Body):
 		self.rotation_x_speed = 0.0
 		self.rotation_z_speed = 0.0
 		self.solid = 0
+		self.lastmotion = ez430.Motion()
         
 	def begin_round(self):
 		soya.Body.begin_round(self)
 		for event in soya.MAIN_LOOP.events:
 			if event[0] == soya.sdlconst.KEYDOWN:
-				if   event[1] == soya.sdlconst.K_UP:     self.rotation_x_speed = -10.0
-				elif event[1] == soya.sdlconst.K_DOWN:   self.rotation_x_speed = 10.0
-				elif event[1] == soya.sdlconst.K_LEFT:   self.rotation_y_speed = -10.0
-				elif event[1] == soya.sdlconst.K_RIGHT:  self.rotation_y_speed = 10.0
+				if   event[1] == soya.sdlconst.K_UP:     self.rotation_y_speed = -10.0
+				elif event[1] == soya.sdlconst.K_DOWN:   self.rotation_y_speed = 10.0
+				elif event[1] == soya.sdlconst.K_LEFT:   self.rotation_x_speed = -10.0
+				elif event[1] == soya.sdlconst.K_RIGHT:  self.rotation_x_speed = 10.0
 				elif event[1] == soya.sdlconst.K_LSHIFT: self.reset_pos()
 			elif event[0] == soya.sdlconst.KEYUP:
-				if   event[1] == soya.sdlconst.K_UP:     self.rotation_x_speed = 0.0
-				elif event[1] == soya.sdlconst.K_DOWN:   self.rotation_x_speed = 0.0
-				elif event[1] == soya.sdlconst.K_LEFT:   self.rotation_y_speed = 0.0
-				elif event[1] == soya.sdlconst.K_RIGHT:  self.rotation_y_speed = 0.0
+				if   event[1] == soya.sdlconst.K_UP:     self.rotation_y_speed = 0.0
+				elif event[1] == soya.sdlconst.K_DOWN:   self.rotation_y_speed = 0.0
+				elif event[1] == soya.sdlconst.K_LEFT:   self.rotation_x_speed = 0.0
+				elif event[1] == soya.sdlconst.K_RIGHT:  self.rotation_x_speed = 0.0
+				elif event[1] == ord('z'):
+					#self.rotate(90, scene, soya.Point(scene, 0.0, 1.0, 0.0))
+					self.turn_x(45)
+				elif event[1] == ord('q'):
+					self.turn_y(-45)
+
 			elif event[0] == soya.sdlconst.QUIT:
 				soya.MAIN_LOOP.stop()
 
 		motion = motionThread.motion
 		if motion != False:
-			self.rotation_x_speed = motion.x * 0.2
-			#self.rotation_y_speed = motion.y * 0.2
-			#self.rotation_z_speed = motion.z * 0.2
+			self.turn_x(motion.x * 2. * 0.2 + self.lastmotion.x * 0.1)
+			self.turn_y(motion.y * 2. * 0.2 + self.lastmotion.y * 0.1)
+			self.turn_z(motion.z * 2. * 0.2 + self.lastmotion.z * 0.1)
+			self.lastmotion = motion
 
-		self.rotate_y(self.rotation_y_speed)
-		self.rotate_x(self.rotation_x_speed)
+		#self.rotate_x(self.rotation_x_speed)
+		#self.rotate_y(self.rotation_y_speed)
+		#self.rotate_z(self.rotation_z_speed)
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
-		self.add_mul_vector(proportion, self.speed)
+		#self.add_mul_vector(proportion, self.speed)
 
 	def reset_pos(self):
 		print "Reset des position"
@@ -120,18 +129,18 @@ class ArticulateSword(soya.Body):
 sword = ArticulateSword(scene)
 
 # Parametrage Sword
-sword.z = -30.
-sword.y = -30.
-sword.x = -30.
-sword.rotate_y(90.0)
-sword.rotate_z(-90.0)
+sword.x = 0.
+sword.y = 0.
+sword.z = 20.
+#sword.rotate_y(90.0)
+#sword.rotate_z(-90.0)
 
 # Gestion de la lumiere
 light = soya.Light(scene)
-light.set_xyz( .5, 0., 2.)
-light.directional = 1
+light.set_xyz( 5., 5., 0.)
+light.directional = 2
 light.diffuse = (1.0, 0.8, 0.4, 1.0)
-light.rotate_x(-45.0)
+light.rotate_x(-90.0)
 
 # Atmosphere 
 scene.atmosphere = soya.SkyAtmosphere()
@@ -149,9 +158,9 @@ scene.atmosphere.fog_color = (0.3, 0.3, 0.4, 1.0)
 
 # Gestion de la Camera
 camera = soya.Camera(scene)
-camera.x = -5.
-camera.y = -5.
-camera.z = -5.
+camera.x = 0.
+camera.y = 0.
+camera.z = 5.
 
 #traveling = soya.ThirdPersonTraveling(sword)
 #traveling.distance = 15.0
