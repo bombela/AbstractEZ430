@@ -26,7 +26,7 @@ struct ServiceWrap: Service, wrapper<Service>
 	operator Service&() { return *this; }
 };
 
-BOOST_PYTHON_MODULE(ez430)
+BOOST_PYTHON_MODULE(_ez430)
 {
 	class_<ServiceWrap, boost::noncopyable>("Service")
 		.def("getMotion", &ServiceWrap::getMotion)
@@ -62,7 +62,7 @@ BOOST_PYTHON_MODULE(ez430)
 		.value("UP", Motion::UP)
 		;
 
-	class_<Motion>("Motion", no_init)
+	class_<Motion>("Motion")
 		.def_readwrite("button", &Motion::button)
 		.def_readwrite("haveAcc", &Motion::haveAcc)
 		.def_readwrite("x", &Motion::x)
