@@ -19,6 +19,8 @@
 import sys, os, os.path, soya, soya.sdlconst
 import soya.widget as widget
 import ez430
+import time
+from threading import Thread
 
 ap = ez430.AccessPoint()
 
@@ -29,7 +31,36 @@ try:
 except (RuntimeError):
 	print "Unable to connect to watch access point..."
 
+if ap.isOpen():
+	if ap.getRadioState() == ez430.RadioState.STOPPED:
+		print "Starting access point radio..."
+		ap.startRadio()
+
 watch = ez430.Watch(ap.getService())
+
+class MotionThread(Thread):
+	def __init__ (self):
+		Thread.__init__(self)
+		self.motion = False
+		self.running = True
+
+	def run(self):
+		if not ap.isOpen():
+			print "Access point not open... stop thread"
+			return
+		while self.running:
+			time.sleep(0.5)
+			try:
+				self.motion = False
+				self.motion = watch.getMotion()
+			except (RuntimeError):
+				print "Watch not connected ?"
+
+	def stop(self):
+		self.running = False
+
+motionThread = MotionThread()
+motionThread.start()
 
 # Initialisation
 soya.init()
@@ -65,6 +96,12 @@ class ArticulateSword(soya.Body):
 				elif event[1] == soya.sdlconst.K_RIGHT:  self.rotation_y_speed = 0.0
 			elif event[0] == soya.sdlconst.QUIT:
 				soya.MAIN_LOOP.stop()
+
+		motion = motionThread.motion
+		if motion != False:
+			self.rotation_x_speed = motion.x * 0.2
+			#self.rotation_y_speed = motion.y * 0.2
+			#self.rotation_z_speed = motion.z * 0.2
 
 		self.rotate_y(self.rotation_y_speed)
 		self.rotate_x(self.rotation_x_speed)
@@ -132,5 +169,8 @@ camera.look_at(sword)
 soya.set_root_widget(camera)
 
 # Main Loop
-soya.MainLoop(scene).main_loop()
-
+try:
+	soya.MainLoop(scene).main_loop()
+except (KeyboardInterrupt, SystemExit):
+	print "Exiting..."
+	motionThread.stop()
