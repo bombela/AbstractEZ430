@@ -66,7 +66,8 @@ class Weapon(soya.Body):
 
 	# Initialisation Object (constructeur)
 	def __init__(self, parent, w_name):
-		soya.Body.__init__(self, parent, soya.Model.get(w_name))
+		soya.Body.__init__(self, parent)
+		self.set_model(soya.Model.get(w_name))
 		self.speed = soya.Vector(parent, 0.0, 0.0, 0.0)
 #		self.p_speed = soya.Vector(parent, 0.,0.,0.) # previous speed
 
@@ -117,26 +118,41 @@ class Weapon(soya.Body):
 
 		motion = motionThread.motion
 		if motion != False:
-			h = math.hypot(motion.x, motion.y) # hypotenuse
-			if h != 0:
-				self.a = math.degrees(math.asin(motion.y / h))
+			if (motion.x > 0):
+				h = math.hypot(motion.x, motion.y) # hypotenuse
+				if h != 0:
+					self.a = math.degrees(math.asin(motion.y / h))
+				self.rotate_z(self.a)
+
+			if (motion.z > 0):
+				h = math.hypot(motion.z, motion.y) # hypotenuse
+				if h != 0:
+					self.a = math.degrees(math.asin(motion.y / h))
+				self.rotate_x(self.a)
+
+			if (motion.y > 0):
+				h = math.hypot(motion.z, motion.x) # hypotenuse
+				if h != 0:
+					self.a = math.degrees(math.asin(motion.x / h))
+				self.rotate_y(self.a)
+
+
 			print " x:%d" %motion.x
 			print " y:%d" %motion.y
 			print " z:%d" %motion.z
 			print " h:%d" %h
 			print " a:%d" %self.a
 
-			
 
-			self.speed.x = 0
-			self.speed.y = 0
-			self.speed.z = motion.z * -1
-			self.add_vector(self.speed)
+#			self.speed.x = 0
+#			self.speed.y = 0
+#			self.speed.z = motion.z * -1
+#			self.add_vector(self.speed)
 
-			self.speed.x = motion.x
-			self.speed.y = 0
-			self.speed.z = 0
-			self.add_vector(self.speed)
+#			self.speed.x = motion.x
+#			self.speed.y = 0
+#			self.speed.z = 0
+#			self.add_vector(self.speed)
 
 #			self.b = self.b + 1
 #			self.rotation_speed = random.uniform(-25., 25.)
@@ -145,7 +161,7 @@ class Weapon(soya.Body):
 #				print do + some + shit
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
-		self.add_vector(self.speed)
+#		self.add_vector(self.speed)
 #		self.rotate_axis(self.a, self.speed)
 		self.rotate_x(self.r_speed.x)
 		self.rotate_y(self.r_speed.y)
@@ -175,7 +191,7 @@ weapon = Weapon(scene, "sword")
 # Parametrage Sword
 weapon.x = 0.
 weapon.y = 0.
-weapon.z = 20.
+weapon.z = 2.
 
 # Gestion de la lumiere
 light = soya.Light(scene)

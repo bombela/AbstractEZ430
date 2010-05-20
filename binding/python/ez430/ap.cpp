@@ -70,7 +70,6 @@ BOOST_PYTHON_MODULE(_ez430)
 		.def("getUnitSystem", &Watch::getUnitSystem)
 		.def("setUnitSystem", &Watch::setUnitSystem)
 		.def("exitWatchSyncMode", &Watch::exitWatchSyncMode)
-		.def("probePorts", &Watch::probePorts)
 		;
 
 	enum_<Watch::Unit>("Unit")
