@@ -92,9 +92,29 @@ bool ApService::getSyncData(SyncData& d)
 	return true;
 }
 
-bool ApService::setSyncData(const SyncData&)
+bool ApService::setSyncData(const SyncData& d)
 {
-	throw "not implemented";
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+				sync::packet::SYNC_AP_CMD_SET_WATCH);
+
+	packet.useMetric = d.useMetric;
+	packet.hour = d.hour;
+	packet.minute = d.minute;
+	packet.second = d.second;
+	packet.year = d.year;
+	packet.month = d.month;
+	packet.day = d.day;
+	packet.alarmHour = d.alarmHour;
+	packet.alarmMinute = d.alarmMinute;
+	packet.temperature = d.temperature / 10.f;
+	packet.altitude = d.altitude;
+
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+
+	std::cout << "setSyncData status " << (int)packet.status << std::endl;
+	return packet.status;
 }
 
 bool ApService::exitWatchSyncMode()
