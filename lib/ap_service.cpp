@@ -7,11 +7,26 @@
 #include "ap_service.h"
 #include "ap_proto.h"
 #include "sync_proto.h"
+#include <cstring>
+#include <boost/thread.hpp>
 
 #include <iostream> // TODO REMOVE ME
+#include <iomanip> // TODO REMOVE ME
 
 namespace ez430 {
 namespace protocol {
+
+namespace sync {
+
+sync::packet::Sync createPacket(uint8_t cmd, uint8_t syncCmd)
+{
+	sync::packet::Sync packet = ap::createPacket<sync::packet::Sync>(cmd);
+	packet.syncCmd = syncCmd;
+	std::memset(packet.padding, 0, sizeof(packet.padding));
+	return packet;
+}
+
+} // namespace sync
 
 ApService::ApService(boost::asio::serial_port& sp):
 	_serialPort(sp)
@@ -60,7 +75,7 @@ bool ApService::getMotion(MotionData& d)
 bool ApService::requestSyncData()
 {
 	sync::packet::Sync packet =
-		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+		sync::createPacket(ap::packet::BM_SYNC_SEND_COMMAND,
 				sync::packet::SYNC_AP_CMD_GET_STATUS);
 	boost::asio::write(_serialPort, buffer(packet));
 	boost::asio::read(_serialPort, buffer(packet));
@@ -73,7 +88,7 @@ bool ApService::getSyncData(SyncData& d)
 		return false;
 	
 	sync::packet::Sync packet =
-		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_READ_BUFFER,
+		sync::createPacket(ap::packet::BM_SYNC_READ_BUFFER,
 				sync::packet::SYNC_AP_CMD_GET_STATUS);
 	boost::asio::write(_serialPort, buffer(packet));
 	boost::asio::read(_serialPort, buffer(packet));
@@ -95,7 +110,7 @@ bool ApService::getSyncData(SyncData& d)
 bool ApService::setSyncData(const SyncData& d)
 {
 	sync::packet::Sync packet =
-		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+		sync::createPacket(ap::packet::BM_SYNC_SEND_COMMAND,
 				sync::packet::SYNC_AP_CMD_SET_WATCH);
 
 	packet.useMetric = d.useMetric;
@@ -111,18 +126,18 @@ bool ApService::setSyncData(const SyncData& d)
 	packet.altitude = d.altitude;
 
 	boost::asio::write(_serialPort, buffer(packet));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 	boost::asio::read(_serialPort, buffer(packet));
-
-	std::cout << "setSyncData status " << (int)packet.status << std::endl;
-	return packet.status;
+	return packet.status == 3 && packet.cmd == ap::packet::BM_ACK;
 }
 
 bool ApService::exitWatchSyncMode()
 {
 	sync::packet::Sync packet =
-		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+		sync::createPacket(ap::packet::BM_SYNC_SEND_COMMAND,
 				sync::packet::SYNC_AP_CMD_EXIT);
 	boost::asio::write(_serialPort, buffer(packet));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 	boost::asio::read(_serialPort, buffer(packet));
 	return packet.status;
 }

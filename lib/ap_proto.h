@@ -8,8 +8,8 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include <ez430_watch/packed.h>
 #include <ostream>
+#include "packed.h"
 
 namespace ez430 {
 namespace protocol {
@@ -25,6 +25,7 @@ enum {
 enum {
 	BM_GET_STATUS             = 0x00,
 	BM_RESET                  = 0x01,
+	BM_ACK                    = 0x06,
 	BM_GET_PRODUCT_ID         = 0x20,
 
 	BM_START_SIMPLICITI       = 0x07,

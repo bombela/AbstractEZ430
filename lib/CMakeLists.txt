@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 2.4)
 
-find_package(Boost 1.38 REQUIRED system thread)
+find_package(Boost 1.38 REQUIRED system thread date_time)
 include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
