@@ -71,7 +71,14 @@ class Implementation
 
 		Time     getTime()
 		{
-			throw "not implemented";
+			protocol::SyncData d;
+			retrieveSyncData(d);
+
+			Time t;
+			t.hour = d.hour;
+			t.minute = d.minute;
+			t.second = d.second;
+			return t;
 		}
 		bool     setTime(Time)
 		{
@@ -137,6 +144,16 @@ class Implementation
 		int                _lastX;
 		int                _lastY;
 		int                _lastZ;
+
+		void retrieveSyncData(protocol::SyncData& d)
+		{
+			_service.requestSyncData();
+			int retry = 50;
+			while (--retry && !_service.getSyncData(d))
+				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			if (retry == 0)
+				throw std::runtime_error("syncdata retrieving timeout excessed");
+		}
 };
 
 // PIMPL IDIOM
