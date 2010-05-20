@@ -88,22 +88,29 @@ int main(int argc, char const* argv[])
 			t.minute = 42;
 			t.second = 0;
 			std::cout << "Setting AlarmTime: " << t << std::endl;
-			if (watch.setAlarm(t))
-				std::cout << "Alarm: " << watch.getAlarm() << std::endl;
-			else
-				std::cout << "Failed setting up alarmtime..." << std::endl;
+			watch.setAlarm(t);
+			std::cout << "Alarm: " << watch.getAlarm() << std::endl;
 		}
-		else if (arg == "sta")
+		else if (arg == "ta")
 		{
-			float a = 42.0;
-			if (watch.setTemperature(a))
-				std::cout << "Temp: " << watch.getTemperature() << std::endl;
-			else
-				std::cout << "Failed setting up temperature..." << std::endl;
-			if (watch.setAltitude(a))
-				std::cout << "Alt: " << watch.getAltitude() << std::endl;
-			else
-				std::cout << "Failed setting up altitude..." << std::endl;
+			std::cout << "Temp: " << watch.getTemperature() << std::endl;
+			std::cout << "Alt: " << watch.getAltitude() << std::endl;
+		}
+		else if (arg == "um")
+		{
+			std::cout << "UnitSystem: " << watch.getUnitSystem() << std::endl;
+		}
+		else if (arg == "sum")
+		{
+			watch.setUnitSystem(Watch::AMERICAN);
+			std::cout << "UserMetric: " << std::boolalpha
+				<< (bool)watch.getUnitSystem() << std::endl;
+		}
+		else if (arg == "ssdt")
+		{
+			watch.setSystemDateAndTime();
+			std::cout << "Date: " << watch.getDate() << std::endl;
+			std::cout << "Time: " << watch.getTime() << std::endl;
 		}
 	}
 	std::cout << "bye..." << std::endl;
