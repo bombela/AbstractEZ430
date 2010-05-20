@@ -4,11 +4,6 @@
 #
 #
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-	set(CMAKE_CXX_FLAGS_DEBUG "-g3 -D_GLIBCXX_DEBUG")
-endif()
-
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_executable(syncmode
