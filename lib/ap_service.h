@@ -21,12 +21,15 @@ class ApService: public Service
 
 		virtual bool     getMotion(MotionData& d);
 		
+		virtual bool     requestSyncData();
 		virtual bool     getSyncData(SyncData& d);
 		virtual bool     setSyncData(const SyncData& d);
-		virtual bool     exitWatchSync();
+		virtual bool     exitWatchSyncMode();
 
 	private:
 		boost::asio::serial_port& _serialPort;
+
+		bool syncBufferIsReady();
 };
 
 template <typename T>

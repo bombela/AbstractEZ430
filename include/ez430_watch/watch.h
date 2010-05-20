@@ -20,6 +20,8 @@ struct Date
 	int year;
 	int month;
 	int day;
+	
+	friend std::ostream& operator<<(std::ostream& os, const Date&);
 };
 
 struct Time
@@ -27,6 +29,8 @@ struct Time
 	int hour;
 	int minute;
 	int second;
+	
+	friend std::ostream& operator<<(std::ostream& os, const Time&);
 };
 
 struct Motion
@@ -64,18 +68,20 @@ class Watch
 		bool     setDate(Date);
 
 		Time     getAlarm();
-		Time     setAlarm(Time);
+		bool     setAlarm(Time);
 
 		bool     setSystemDateAndTime();
 
 		float    getTemperature();
-		bool     setTemperature(float offset);
+		bool     setTemperature(float);
 
 		int      getAltitude();
-		bool     setAltitude(float offset);
+		bool     setAltitude(float);
 
 		Unit     getUnitSystem();
 		bool     setUnitSystem(Unit);
+
+		bool     exitWatchSyncMode();
 		
 		static std::vector<std::string> probePorts();
 	

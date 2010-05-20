@@ -45,6 +45,9 @@ class Implementation
 
 			// Clear AccessPoint motion buffer.
 			{ protocol::MotionData m; _apService.getMotion(m); }
+
+			// Clear Sync motion buffer.
+			{ protocol::SyncData d; _apService.getSyncData(d); }
 		}
 
 		bool isOpen() const

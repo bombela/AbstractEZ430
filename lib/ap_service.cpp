@@ -6,6 +6,9 @@
 
 #include "ap_service.h"
 #include "ap_proto.h"
+#include "sync_proto.h"
+
+#include <iostream> // TODO REMOVE ME
 
 namespace ez430 {
 namespace protocol {
@@ -54,19 +57,83 @@ bool ApService::getMotion(MotionData& d)
 	return true;
 }
 
-bool ApService::getSyncData(SyncData&)
+bool ApService::requestSyncData()
 {
-	throw "not implemented";
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+				sync::packet::SYNC_AP_CMD_GET_STATUS);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+	return true;
 }
 
-bool ApService::setSyncData(const SyncData&)
+bool ApService::getSyncData(SyncData& d)
 {
-	throw "not implemented";
+	if (!syncBufferIsReady())
+		return false;
+	
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_READ_BUFFER,
+				sync::packet::SYNC_AP_CMD_GET_STATUS);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+
+	d.useMetric = packet.useMetric;
+	d.hour = packet.hour;
+	d.minute = packet.minute;
+	d.second = packet.second;
+	d.year = packet.year;
+	d.month = packet.month;
+	d.day = packet.day;
+	d.alarmHour = packet.alarmHour;
+	d.alarmMinute = packet.alarmMinute;
+	d.temperature = packet.temperature / 10.f;
+	d.altitude = packet.altitude;
+	return true;
 }
 
-bool ApService::exitWatchSync()
+bool ApService::setSyncData(const SyncData& d)
 {
-	throw "not implemented";
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+				sync::packet::SYNC_AP_CMD_SET_WATCH);
+
+	packet.useMetric = d.useMetric;
+	packet.hour = d.hour;
+	packet.minute = d.minute;
+	packet.second = d.second;
+	packet.year = d.year;
+	packet.month = d.month;
+	packet.day = d.day;
+	packet.alarmHour = d.alarmHour;
+	packet.alarmMinute = d.alarmMinute;
+	packet.temperature = d.temperature * 10.f;
+	packet.altitude = d.altitude;
+
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+
+	std::cout << "setSyncData status " << (int)packet.status << std::endl;
+	return packet.status;
+}
+
+bool ApService::exitWatchSyncMode()
+{
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+				sync::packet::SYNC_AP_CMD_EXIT);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+	return packet.status;
+}
+
+bool ApService::syncBufferIsReady()
+{
+	ap::packet::Status packet =
+		ap::createPacket<ap::packet::Status>(ap::packet::BM_SYNC_GET_BUFFER_STATUS);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+	return packet.status;
 }
 
 } // namespace protocol

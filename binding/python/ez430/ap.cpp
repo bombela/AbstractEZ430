@@ -18,10 +18,11 @@ using namespace ez430::protocol;
 
 struct ServiceWrap: Service, wrapper<Service>
 {
-	virtual bool getMotion(MotionData& d) { return get_override("getMotion")(d); };
-	virtual bool getSyncData(SyncData& d) { return get_override("getSyncData")(d); };
-	virtual bool setSyncData(const SyncData& d) { return get_override("setSyncData")(d); };
-	virtual bool exitWatchSync() { return get_override("exitWatchSync"); };
+	virtual bool getMotion(MotionData& d) { return get_override("getMotion")(d); }
+	virtual bool requestSyncData() { return get_override("requestSyncData"); }
+	virtual bool getSyncData(SyncData& d) { return get_override("getSyncData")(d); }
+	virtual bool setSyncData(const SyncData& d) { return get_override("setSyncData")(d); }
+	virtual bool exitWatchSyncMode() { return get_override("exitWatchSyncMode"); }
 
 	operator Service&() { return *this; }
 };

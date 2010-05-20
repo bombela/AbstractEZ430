@@ -8,10 +8,12 @@
 #ifndef SYNC_PROTO_H
 #define SYNC_PROTO_H
 
+#include "ap_proto.h"
+
 namespace ez430 {
 namespace protocol {
-namespace packet {
 namespace sync {
+namespace packet {
 
 enum {
 	SYNC_AP_CMD_NOP                      = 1u,
@@ -23,15 +25,15 @@ enum {
 	SYNC_AP_CMD_EXIT                     = 7u
 };
 
-struct PACKED(Sync): Base
+struct PACKED Sync: ap::packet::Base
 {
 	union
 	{
 		uint8_t syncCmd; // request
 		uint8_t status;  // response
 	};
-	uint8_t  useMetric:1;
 	uint8_t  hour:7;
+	uint8_t  useMetric:1;
 	uint8_t  minute;
 	uint8_t  second;
 	uint16_t year;
@@ -44,8 +46,23 @@ struct PACKED(Sync): Base
 	uint8_t  padding[5];
 };
 
-} // namespace sync
 } // namespace packet
+
+template <typename T>
+T createPacket(uint8_t cmd, uint8_t syncCmd)
+{
+	T packet;
+
+	packet.magic = ap::packet::MAGIC;
+	packet.cmd = cmd;
+	packet.size = sizeof(packet);
+	packet.syncCmd = syncCmd;
+	for (int i = 0; i < 5; ++i)
+		packet.padding[i] = 0;
+	return packet;
+}
+
+} // namespace sync
 } // namespace protocol
 } // namespace ez430
 

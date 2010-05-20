@@ -13,17 +13,17 @@ namespace protocol {
 
 struct SyncData
 {
-	bool useMetric;
-	int  hour;
-	int  minute;
-	int  second;
-	int  year;
-	int  month;
-	int  day;
-	int  alarmHour;
-	int  alarmMinute;
-	int  temperature;
-	int  altitude;
+	bool  useMetric;
+	int   hour;
+	int   minute;
+	int   second;
+	int   year;
+	int   month;
+	int   day;
+	int   alarmHour;
+	int   alarmMinute;
+	float temperature;
+	int   altitude;
 };
 
 struct MotionData
@@ -45,9 +45,10 @@ class Service
 
 		virtual bool     getMotion(MotionData& d)       = 0;
 		
+		virtual bool     requestSyncData()              = 0;
 		virtual bool     getSyncData(SyncData& d)       = 0;
 		virtual bool     setSyncData(const SyncData& d) = 0;
-		virtual bool     exitWatchSync()                = 0;
+		virtual bool     exitWatchSyncMode()            = 0;
 };
 
 } // namespace protocol
