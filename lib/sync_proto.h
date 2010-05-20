@@ -32,8 +32,8 @@ struct PACKED Sync: ap::packet::Base
 		uint8_t syncCmd; // request
 		uint8_t status;  // response
 	};
-	uint8_t  useMetric:1;
 	uint8_t  hour:7;
+	uint8_t  useMetric:1;
 	uint8_t  minute;
 	uint8_t  second;
 	uint16_t year;
@@ -57,6 +57,8 @@ T createPacket(uint8_t cmd, uint8_t syncCmd)
 	packet.cmd = cmd;
 	packet.size = sizeof(packet);
 	packet.syncCmd = syncCmd;
+	for (int i = 0; i < 5; ++i)
+		packet.padding[i] = 0;
 	return packet;
 }
 

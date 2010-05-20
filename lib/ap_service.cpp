@@ -107,7 +107,7 @@ bool ApService::setSyncData(const SyncData& d)
 	packet.day = d.day;
 	packet.alarmHour = d.alarmHour;
 	packet.alarmMinute = d.alarmMinute;
-	packet.temperature = d.temperature / 10.f;
+	packet.temperature = d.temperature * 10.f;
 	packet.altitude = d.altitude;
 
 	boost::asio::write(_serialPort, buffer(packet));

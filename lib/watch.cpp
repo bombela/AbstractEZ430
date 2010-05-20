@@ -71,23 +71,36 @@ class Implementation
 
 		Time     getTime()
 		{
-			protocol::SyncData d;
-			retrieveSyncData(d);
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
 
 			Time t;
-			t.hour = d.hour;
-			t.minute = d.minute;
-			t.second = d.second;
+			t.hour = sd.hour;
+			t.minute = sd.minute;
+			t.second = sd.second;
 			return t;
 		}
-		bool     setTime(Time)
+		bool     setTime(Time t)
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			sd.hour = t.hour;
+			sd.minute = t.minute;
+			sd.second = t.second;
+			return _service.setSyncData(sd);
 		}
 		
 		Date     getDate()
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			Date d;
+			d.year = sd.year;
+			d.month = sd.month;
+			d.day = sd.day;
+			return d;
 		}
 		bool     setDate(Date)
 		{
@@ -203,11 +216,11 @@ namespace {
 
 inline void printDateTime(std::ostream& os, const std::tm& tm, const char* pattern)
 {
-	const std::locale locale;
+	std::locale locale;
 	const std::time_put<char>& tmput
 		= std::use_facet<std::time_put<char> >(locale);
 
-	tmput.put(os, os, ' ', &tm, pattern, pattern + std::strlen(pattern) - 1);
+	tmput.put(os, os, ' ', &tm, pattern, pattern + std::strlen(pattern));
 }
 
 } // namespace anonymous
@@ -218,7 +231,7 @@ std::ostream& operator<<(std::ostream& os, const Date& date)
 	if (init)
 	{
 		std::tm tm;
-		tm.tm_year = date.year;
+		tm.tm_year = date.year - 1900;
 		tm.tm_mon = date.month;
 		tm.tm_mday = date.day;
 		printDateTime(os, tm, "%x");

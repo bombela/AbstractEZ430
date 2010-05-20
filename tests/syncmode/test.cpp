@@ -55,13 +55,21 @@ int main(int argc, char const* argv[])
 			std::cout << "Exiting sync mode on the watch..." << std::endl;
 			watch.exitWatchSyncMode();
 		}
-		else if (arg == "time")
-		{
-			std::cout << "Time: " << watch.getTime() << std::endl;
-		}
-		else if (arg == "date")
+		else if (arg == "td")
 		{
 			std::cout << "Date: " << watch.getDate() << std::endl;
+			std::cout << "Time: " << watch.getTime() << std::endl;
+		}
+		else if (arg == "st")
+		{
+			Time t;
+			t.hour = 8;
+			t.minute = 8;
+			t.second = 8;
+			std::cout << "Setting time: " << t << std::endl;
+			watch.setTime(t);
+			std::cout << "Date: " << watch.getDate() << std::endl;
+			std::cout << "Time: " << watch.getTime() << std::endl;
 		}
 	}
 	std::cout << "bye..." << std::endl;
