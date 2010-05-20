@@ -28,14 +28,17 @@ if ap.isOpen():
 
 watch = ez430.Watch(ap.getService())
 watch.setSmooth(0.80)
+watch.setTimeout(200)
 
 class MotionThread(Thread):
 	def __init__ (self):
 		Thread.__init__(self)
 		self.motion = False
-		self.running = True
+		self.running = False
 
 	def run(self):
+		self.running = True
+		self.motion = False
 		if not ap.isOpen():
 			print "Access point not open... stop thread"
 			return
@@ -99,10 +102,19 @@ class Demo(soya.Body):
 
 		self.btnlatency = 0
 
+		self.useThread = True
+		self.usez = False
+
 	def nextmodel(self):
 		self.modelidx += 1
 		if self.modelidx >= len(self.models):
 			self.modelidx = 0
+		self.set_model(self.models[self.modelidx])
+	
+	def prevmodel(self):
+		self.modelidx -= 1
+		if self.modelidx <= 0:
+			self.modelidx = len(self.models) - 1
 		self.set_model(self.models[self.modelidx])
 
 	# Gestion des events
@@ -115,11 +127,35 @@ class Demo(soya.Body):
 		#			self.set_model(soya.Model.get("sword"))
 
 
-		motion = motionThread.motion
+		motion = False
+		if self.useThread:
+			motion = motionThread.motion
+		else:
+			motion = ez430.Motion()
+			if not watch.tryGetMotion(motion):
+				motion = False
+
 		if motion != False:
-			if self.btnlatency == 0 and motion.button == ez430.Button.UP:
-				self.nextmodel()
-				self.btnlatency = 10
+			if self.btnlatency == 0:
+				if motion.button == ez430.Button.UP:
+					self.nextmodel()
+				if motion.button == ez430.Button.STAR:
+					self.usez = not self.usez
+					if self.usez:
+						print "Z value enabled"
+					else:
+						print "Z value disabled"
+				elif motion.button == ez430.Button.NUM:
+					if self.useThread:
+						print "Threading off"
+						motionThread.stop()
+						motionThread.join()
+						self.useThread = False
+					else:
+						print "Threading already off"
+				if motion.button != ez430.Button.NONE:
+					self.btnlatency = 10
+
 			if self.btnlatency > 0:
 				self.btnlatency -= 1
 
@@ -132,6 +168,9 @@ class Demo(soya.Body):
 			self.z = -4.
 			self.turn_x(dx)
 			self.turn_y(dy)
+			
+			if self.usez:
+				self.turn_z((motion.z * 90 / 60))
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
@@ -184,3 +223,4 @@ try:
 except (KeyboardInterrupt, SystemExit):
 	print "Exiting..."
 	motionThread.stop()
+	motionThread.join()

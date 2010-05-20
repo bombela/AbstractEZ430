@@ -55,9 +55,13 @@ class Watch
 		~Watch();
 		Watch(protocol::Service& service);
 
-		float getSmooth() const;
-		void setSmooth(float value);
+		float    getSmooth() const;
+		void     setSmooth(float value);
 		
+		unsigned getTimeout() const;
+		void     setTimeout(unsigned);
+		
+		bool           tryGetMotion(Motion&);
 		Motion         getMotion();
 		Motion::Button getButton();
 
@@ -83,8 +87,6 @@ class Watch
 
 		bool     exitWatchSyncMode();
 
-		void     setTimeout();
-	
 	private:
 		class Implementation *_impl;
 };
