@@ -39,7 +39,7 @@ class MotionThread(Thread):
 			print "Access point not open... stop thread"
 			return
 		while self.running:
-			time.sleep(0.1)
+			time.sleep(0.01)
 			try:
 				self.motion = False
 				motion = watch.getMotion()
@@ -60,6 +60,14 @@ soya.path.append(os.path.join(os.path.dirname(sys.argv[0]), "data"))
 # Creates a scene.
 scene = soya.World()
 
+class AbsDegree:
+	def __init__(self):
+		self.absdegree = 0
+
+	def update(self, new):
+		r = new - self.absdegree
+		self.absdegree = new
+		return r
 
 #Classe Weapon
 class Weapon(soya.Body):
@@ -79,6 +87,9 @@ class Weapon(soya.Body):
 		self.lastmotion = ez430.Motion()
 		self.a = 0 # angle
 		self.b = 0
+
+		self.adx = AbsDegree()
+		self.ady = AbsDegree()
 
 	# Gestion des events
 	def begin_round(self):
@@ -118,47 +129,9 @@ class Weapon(soya.Body):
 
 		motion = motionThread.motion
 		if motion != False:
-			if (motion.x > 0):
-				h = math.hypot(motion.x, motion.y) # hypotenuse
-				if h != 0:
-					self.a = math.degrees(math.asin(motion.y / h))
-				self.rotate_z(self.a)
+			self.turn_x(self.adx.update(-motion.x * 90 / 54))
+			self.turn_y(self.ady.update(motion.y * 90 / 54))
 
-			if (motion.z > 0):
-				h = math.hypot(motion.z, motion.y) # hypotenuse
-				if h != 0:
-					self.a = math.degrees(math.asin(motion.y / h))
-				self.rotate_x(self.a)
-
-			if (motion.y > 0):
-				h = math.hypot(motion.z, motion.x) # hypotenuse
-				if h != 0:
-					self.a = math.degrees(math.asin(motion.x / h))
-				self.rotate_y(self.a)
-
-
-			print " x:%d" %motion.x
-			print " y:%d" %motion.y
-			print " z:%d" %motion.z
-			print " h:%d" %h
-			print " a:%d" %self.a
-
-
-#			self.speed.x = 0
-#			self.speed.y = 0
-#			self.speed.z = motion.z * -1
-#			self.add_vector(self.speed)
-
-#			self.speed.x = motion.x
-#			self.speed.y = 0
-#			self.speed.z = 0
-#			self.add_vector(self.speed)
-
-#			self.b = self.b + 1
-#			self.rotation_speed = random.uniform(-25., 25.)
-#			self.rotate_axis(self.a, self.speed)
-#			if self.b > 5:
-#				print do + some + shit
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
 #		self.add_vector(self.speed)
@@ -190,8 +163,9 @@ weapon = Weapon(scene, "sword")
 
 # Parametrage Sword
 weapon.x = 0.
-weapon.y = 0.
-weapon.z = 2.
+weapon.y = -4.
+weapon.z = 3.
+weapon.turn_x(90)
 
 # Gestion de la lumiere
 light = soya.Light(scene)
@@ -218,7 +192,7 @@ scene.atmosphere.fog_color = (0.3, 0.3, 0.4, 1.0)
 camera = soya.Camera(scene)
 camera.x = 0.
 camera.y = 0.
-camera.z = 5.
+camera.z = 0.
 
 camera.look_at(weapon)
 
