@@ -10,4 +10,4 @@ DEMOPY="@DEMOPY@"
 
 PYTHONPATH="${EZ430_BINDING_PYTHON_PATH}:${PYTHONPATH}"
 export PYTHONPATH
-exec python2.6 "${DEMOPY}"
+exec python2.6 "${DEMOPY}" $@

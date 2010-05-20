@@ -28,6 +28,7 @@ int main(int argc, char const* argv[])
 		<< "ta\t" << "Get Temperature and Altitude from the watch" << std::endl
 		<< "us\t" << "Get UnitSystem from the watch" << std::endl
 		<< "sus\t" << "Set UnitSystem to American on the watch" << std::endl
+		<< "sm\t" << "Set UnitSystem to Metric on the watch" << std::endl
 		<< "ssdt\t" << "Set System Date And Time on the watch" << std::endl;
 		return -1;
 	}
@@ -110,9 +111,17 @@ int main(int argc, char const* argv[])
 		}
 		else if (arg == "sus")
 		{
+			std::cout << "Set American unit" << std::endl;
 			watch.setUnitSystem(Watch::AMERICAN);
 			std::cout << "UnitSystem: " << std::boolalpha
-				<< (bool)watch.getUnitSystem() << std::endl;
+				<< watch.getUnitSystem() << std::endl;
+		}
+		else if (arg == "sm")
+		{
+			std::cout << "Set Metric unit" << std::endl;
+			watch.setUnitSystem(Watch::METRIC);
+			std::cout << "UnitSystem: " << std::boolalpha
+				<< watch.getUnitSystem() << std::endl;
 		}
 		else if (arg == "ssdt")
 		{

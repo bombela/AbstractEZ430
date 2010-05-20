@@ -15,9 +15,15 @@ ap = ez430.AccessPoint()
 
 # ugly detection, yes...
 try:
-	ports = ez430.probePorts()
-	if len(ports):
-		ap.open(ez430.probePorts()[0])
+	line = ""
+	if len(sys.argv) > 1:
+			line = sys.argv[1]
+	else:
+		ports = ez430.probePorts()
+		if len(ports):
+			line = ez430.probePorts()[0]
+	print "Connecting with %s" % (line)
+	ap.open(line)
 except (RuntimeError):
 	print "Unable to connect to watch access point..."
 
