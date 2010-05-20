@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Soya & Python
-import sys, os, os.path, soya, soya.sdlconst
+import sys, os, os.path, soya, soya.sdlconst, soya.cube
 import soya.widget as widget
 import math
 import random
@@ -70,64 +70,61 @@ class AbsDegree:
 		self.absdegree = new
 		return r
 
-#Classe Weapon
-class Weapon(soya.Body):
+#Classe Demo
+class Demo(soya.Body):
 
 	# Initialisation Object (constructeur)
-	def __init__(self, parent, w_name):
+	def __init__(self, parent):
 		soya.Body.__init__(self, parent)
-		self.set_model(soya.Model.get(w_name))
-		self.speed = soya.Vector(parent, 0.0, 0.0, 0.0)
-#		self.p_speed = soya.Vector(parent, 0.,0.,0.) # previous speed
+		self.models = []
+		
+		# cube
+		material = soya.Material()
+		material.shininess = 0.5
+		material.diffuse   = (0.0, 0.2, 0.7, 1.0)
+		material.specular  = (0.2, 0.7, 1.0, 1.0)
+		material.separate_specular = 1
+		cube = soya.cube.Cube(None, material)
+		cube_model = cube.to_model()
 
-		self.r_speed = soya.Vector(parent, 0.,0.,0.) # rotation speed
-		self.p_accel = soya.Vector(parent, 0.,0.,0.) # pourcentage accel speed
-		self.p_speed = soya.Vector(parent, 0.,0.,0.) # pourcentage accel speed
-#		self.p_r_speed = soya.Vector(parent, 0.,0.,0.) # previous rotation speed
-		self.solid = 0
-		self.lastmotion = ez430.Motion()
-		self.a = 0 # angle
-		self.b = 0
+		# models
+		self.models.append(cube_model)
+		self.models.append(soya.Model.get("sword"))
+		self.modelidx = 0
+		self.set_model(self.models[self.modelidx])
 
 		self.adx = AbsDegree()
 		self.ady = AbsDegree()
+
+		self.btnlatency = 0
+
+	def nextmodel(self):
+		self.modelidx += 1
+		if self.modelidx >= len(self.models):
+			self.modelidx = 0
+		self.set_model(self.models[self.modelidx])
 
 	# Gestion des events
 	def begin_round(self):
 		soya.Body.begin_round(self)
 
-		self.speed.x = 0.
-		self.speed.y = 0.
-		self.speed.z = 0.
-
-		self.r_speed.x = 0.
-		self.r_speed.y = 0.
-		self.r_speed.z = 0.
-
-		self.p_accel.x = 0.
-		self.p_accel.x = 0.
-		self.p_accel.x = 0.
-
-		self.a = 0 # angle
-
-		for event in soya.MAIN_LOOP.events:
-			if event[0] == soya.sdlconst.KEYUP:
-				if event[1] == soya.sdlconst.K_a:
-					self.rotate(90,
-							soya.Point(scene, 0.0, 0.0, 0.0),
-							soya.Point(scene, 0.0, -1.0, -4.0))
-				elif event[1] == soya.sdlconst.K_z:
-					self.rotate(90,
-							soya.Point(scene, 0.0, 10.0, -4.0),
-							soya.Point(scene, 0.0, -10.0, -4.0))
-				elif event[1] == soya.sdlconst.K_e:
-					self.set_identity()
+		#for event in soya.MAIN_LOOP.events:
+		#	if event[0] == soya.sdlconst.KEYUP:
+		#		if event[1] == soya.sdlconst.K_e:
+		#			self.set_model(soya.Model.get("sword"))
 
 
 		motion = motionThread.motion
 		if motion != False:
+			if self.btnlatency == 0 and motion.button == ez430.Button.UP:
+				self.nextmodel()
+				self.btnlatency = 10
+			if self.btnlatency > 0:
+				self.btnlatency -= 1
+
 			dx = (motion.x * 90 / 60) + 90
 			dy = -(motion.y * 90 / 60)
+
 			self.set_identity()
 			self.x = 0.
 			self.y = -1.
@@ -137,39 +134,16 @@ class Weapon(soya.Body):
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
-#		self.add_vector(self.speed)
-#		self.rotate_axis(self.a, self.speed)
-		self.rotate_x(self.r_speed.x)
-		self.rotate_y(self.r_speed.y)
-		self.rotate_z(self.r_speed.z)
-#		if self.motion != False:
-#			self.add_mul_vector(proportion, self.speed)
-
-	# Affichage des donnees recues
-	def aff_data(self):
-		print "Received Data -> button: x: y: z:"
-
-	# Fonction Button 1 Pressed
-	def funcion_1(self):
-		print "Fonction Button 1 Pressed"
-
-	# Fonction Button 2 Pressed
-	def funcion_2(self):
-		print "Fonction Button 2 Pressed"
-
-	# Fonction Button 3 Pressed
-	def funcion_3(self):
-		print "Fonction Button 3 Pressed"
 
 # Construction Vrai Sword
-weapon = Weapon(scene, "sword")
+demo = Demo(scene)
 
 # Parametrage Sword
-weapon.x = 0.
-weapon.y = -1.
-weapon.z = -4.
-weapon.turn_y(90)
-weapon.turn_x(90)
+demo.x = 0.
+demo.y = -1.
+demo.z = -4.
+demo.turn_y(90)
+demo.turn_x(90)
 
 # Gestion de la lumiere
 light = soya.Light(scene)
@@ -198,7 +172,7 @@ camera.x = 0.
 camera.y = 0.
 camera.z = 0.
 
-#camera.look_at(weapon)
+#camera.look_at(demo)
 
 # Application de la camera a la l'application
 soya.set_root_widget(camera)

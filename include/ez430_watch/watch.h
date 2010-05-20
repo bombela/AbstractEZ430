@@ -82,6 +82,8 @@ class Watch
 		bool     setUnitSystem(Unit);
 
 		bool     exitWatchSyncMode();
+
+		void     setTimeout();
 	
 	private:
 		class Implementation *_impl;
