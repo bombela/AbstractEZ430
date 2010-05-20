@@ -11,6 +11,7 @@
 #include <locale>
 #include <ctime>
 #include <cstring>
+#include "probeports.h"
 
 namespace ez430 {
 
@@ -246,12 +247,7 @@ bool Watch::setAltitude(float t) { return _impl->setAltitude(t); }
 Watch::Unit Watch::getUnitSystem() { return _impl->getUnitSystem(); }
 bool Watch::setUnitSystem(Unit u) { return _impl->setUnitSystem(u); }
 bool Watch::exitWatchSyncMode() { return _impl->exitWatchSyncMode(); }
-
-std::vector<std::string> Watch::probePorts()
-{
-	std::vector<std::string> r;
-	return r;
-}
+std::vector<std::string> Watch::probePorts() { return ::probePorts(); }
 
 // GLOBAL FUNCS
 
