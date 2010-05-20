@@ -58,7 +58,7 @@ motionThread = MotionThread()
 motionThread.start()
 
 # Initialisation
-soya.init(width = 1024, height = 768, sound = 0, title = "tata")
+soya.init(width = 1024, height = 768, sound = 0, title = "ez430 Demo")
 soya.path.append(os.path.join(os.path.dirname(sys.argv[0]), "data"))
 
 # Creates a scene.
@@ -81,21 +81,20 @@ class Demo(soya.Body):
 		soya.Body.__init__(self, parent)
 		self.models = []
 		
-		# cube
+		# cube material
 		material = soya.Material()
 		material.shininess = 0.5
 		material.diffuse   = (0.0, 0.2, 0.7, 1.0)
 		material.specular  = (0.2, 0.7, 1.0, 1.0)
 		material.separate_specular = 1
-		cube = soya.cube.Cube(None, material)
-		cube_model = cube.to_model()
 
 		# models
-		self.models.append(cube_model)
+		self.models.append(soya.cube.Cube(None, material).to_model())
 		self.models.append(soya.Model.get("sword"))
 		self.models.append(soya.Model.get("wheel4"))
 		self.models.append(soya.Model.get("cube1"))
 		self.models.append(soya.Model.get("pyramid"))
+		self.models.append(soya.Model.get("butterfly"))		
 		self.modelidx = 0
 		self.set_model(self.models[self.modelidx])
 
