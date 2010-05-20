@@ -105,11 +105,18 @@ class Demo(soya.Body):
 		self.btnlatency = 0
 
 		self.useThread = True
+		self.usez = False
 
 	def nextmodel(self):
 		self.modelidx += 1
 		if self.modelidx >= len(self.models):
 			self.modelidx = 0
+		self.set_model(self.models[self.modelidx])
+	
+	def prevmodel(self):
+		self.modelidx -= 1
+		if self.modelidx <= 0:
+			self.modelidx = len(self.models) - 1
 		self.set_model(self.models[self.modelidx])
 
 	# Gestion des events
@@ -134,7 +141,13 @@ class Demo(soya.Body):
 			if self.btnlatency == 0:
 				if motion.button == ez430.Button.UP:
 					self.nextmodel()
-				elif motion.button == ez430.Button.STAR:
+				if motion.button == ez430.Button.STAR:
+					self.usez = not self.usez
+					if self.usez:
+						print "Z value enabled"
+					else:
+						print "Z value disabled"
+				elif motion.button == ez430.Button.NUM:
 					if self.useThread:
 						print "Threading off"
 						motionThread.stop()
@@ -157,6 +170,9 @@ class Demo(soya.Body):
 			self.z = -4.
 			self.turn_x(dx)
 			self.turn_y(dy)
+			
+			if self.usez:
+				self.turn_z((motion.z * 90 / 60))
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
