@@ -1,0 +1,37 @@
+AbstractEZ430
+
+Features:
+
+- Getting ACC  / PPT data in real time
+- Getting data in SYNC mode and modifying watch parameters
+- Auto Detecting of the SerialPort(Linux/OSX)
+- a few example in c++ and python
+
+Test Program:
+
+- Openserial => First try into revert engeneering the watch protocole (work but deprecacted)
+- Ap => First program that connect to the watch with the lib
+- Pywatch => First Python application with the binding show ACC datas
+
+- Watch => This program can start or stop the RF dongle and read datas on the watch in mode ACC or PPT
+- SyncMode => This program can test the sync mode of the watch
+- 3dDemo => Is a sword in 3d witch have been controlled by the watch but not work that well
+- Abpos => This soft try to make a calibration of the watch
+
+Faq:
+
+Why can i activate the alarm from the computer ?
+"Because the Ti protocole don't give us this possibility"
+
+Why the application does not start with /dev/ttyAMC0 ?
+"Because on your OS the RF dongle is called differently (for example on OSX 10.6 it's called tty.usbmodem001)"
+
+Todo:
+
+In priority order:
+- Asynchrone (get the acc datas by callback in a dedicated thread)
+- C Binding
+- AutoDetecting Serial port Windows
+- Add conversion acc data to mgrav (cf. test/watch)
+- Add some filter to the ACC data like low-pass and high-pass filter and put it in watch class
+- Handle the RFBSL => Need new RF module
