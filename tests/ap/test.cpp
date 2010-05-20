@@ -27,7 +27,12 @@ int main(int argc, char const* argv[])
 
 	if (!ap.isOpen())
 	{
-		std::cout << "not open !" << std::endl;
+		std::cout << "AP not open !" << std::endl;
+		std::cout << "Usage: " << "/dev/ttyACM0 cmd" << std::endl
+		<< "cmd\t" << "description" << std::endl
+		<< "---\t" << "-----------" << std::endl
+		<< "start\t" << "Starting RF dongle" << std::endl
+		<< "stop\t" << "Stoping RF dongle" << std::endl
 		return -1;
 	}
 
@@ -47,6 +52,14 @@ int main(int argc, char const* argv[])
 			std::cout << "Stopping radio..." << std::endl;
 			ap.stopRadio();
 		}
+	}
+	else
+	{
+		std::cout << "Usage: " << "/dev/ttyACM0 cmd" << std::endl
+		<< "cmd\t" << "description" << std::endl
+		<< "---\t" << "-----------" << std::endl
+		<< "start\t" << "Starting RF dongle" << std::endl
+		<< "stop\t" << "Stoping RF dongle" << std::endl
 	}
 	std::cout << "bye..." << std::endl;
 	return 0;

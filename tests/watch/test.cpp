@@ -34,7 +34,13 @@ int main(int argc, char const* argv[])
 {
 	if (argc < 2)
 	{
-		std::cout << "usage: " << "/dev/ttyACM0 cmd" << std::endl;
+		std::cout << "Usage: " << "/dev/ttyACM0 cmd" << std::endl
+		<< "cmd\t" << "description" << std::endl
+		<< "---\t" << "-----------" << std::endl
+		<< "start\t" << "Starting RF dongle" << std::endl
+		<< "stop\t" << "Stoping RF dongle" << std::endl
+		<< "acc\t" << "Receive ACC" << std::endl
+		<< "ppt\t" << "Receive PPT" << std::endl;
 		return -1;
 	}
 
