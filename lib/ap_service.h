@@ -28,7 +28,7 @@ class ApService: public Service
 
 	private:
 		boost::asio::serial_port& _serialPort;
-
+		
 		bool syncBufferIsReady();
 };
 

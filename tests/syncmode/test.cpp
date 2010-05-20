@@ -57,15 +57,16 @@ int main(int argc, char const* argv[])
 		}
 		else if (arg == "td")
 		{
+			watch.exitWatchSyncMode();
 			std::cout << "Date: " << watch.getDate() << std::endl;
 			std::cout << "Time: " << watch.getTime() << std::endl;
 		}
 		else if (arg == "st")
 		{
 			Time t;
-			t.hour = 8;
-			t.minute = 8;
-			t.second = 8;
+			t.hour = 4;
+			t.minute = 42;
+			t.second = 42;
 			std::cout << "Setting time: " << t << std::endl;
 			watch.setTime(t);
 			std::cout << "Date: " << watch.getDate() << std::endl;

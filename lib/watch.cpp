@@ -182,7 +182,10 @@ class Implementation
 			throw "not implemented";
 		}
 
-		bool     exitWatchSyncMode() { _service.exitWatchSyncMode(); }
+		bool     exitWatchSyncMode()
+		{
+			return _service.exitWatchSyncMode();
+		}
 
 	private:
 		protocol::Service& _service;
@@ -218,7 +221,7 @@ bool Watch::setDate(Date t) { return _impl->setDate(t); }
 Time Watch::getAlarm() { return _impl->getAlarm(); }
 bool Watch::setAlarm(Time t) { return _impl->setAlarm(t); }
 float Watch::getTemperature() { return _impl->getTemperature(); }
-bool Watch::setTemperature(float t) { _impl->setTemperature(t); }
+bool Watch::setTemperature(float t) { return _impl->setTemperature(t); }
 int Watch::getAltitude() { return _impl->getAltitude(); }
 bool Watch::setAltitude(float t) { return _impl->setAltitude(t); }
 Watch::Unit Watch::getUnitSystem() { return _impl->getUnitSystem(); }

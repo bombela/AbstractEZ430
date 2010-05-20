@@ -17,7 +17,7 @@ namespace packet {
 
 enum {
 	SYNC_AP_CMD_NOP                      = 1u,
-	SYNC_AP_CMD_GET_STATUS		     = 2u,
+	SYNC_AP_CMD_GET_STATUS               = 2u,
 	SYNC_AP_CMD_SET_WATCH                = 3u,
 	SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_1 = 4u,
 	SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_2 = 5u,
@@ -27,6 +27,12 @@ enum {
 
 struct PACKED Sync: ap::packet::Base
 {
+	enum {
+		SYNC_ED_TYPE_R2R    = 0x01,
+		SYNC_ED_TYPE_MEMORY = 0x02,
+		SYNC_ED_TYPE_STATUS = 0x03
+	};
+
 	union
 	{
 		uint8_t syncCmd; // request
@@ -47,21 +53,6 @@ struct PACKED Sync: ap::packet::Base
 };
 
 } // namespace packet
-
-template <typename T>
-T createPacket(uint8_t cmd, uint8_t syncCmd)
-{
-	T packet;
-
-	packet.magic = ap::packet::MAGIC;
-	packet.cmd = cmd;
-	packet.size = sizeof(packet);
-	packet.syncCmd = syncCmd;
-	for (int i = 0; i < 5; ++i)
-		packet.padding[i] = 0;
-	return packet;
-}
-
 } // namespace sync
 } // namespace protocol
 } // namespace ez430

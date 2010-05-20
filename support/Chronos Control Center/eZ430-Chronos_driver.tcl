@@ -13,6 +13,8 @@ if { $vcp_debug == 1 } {
 proc SendCmd { command } {
   global vcp vcp_reply vcp_len vcp_pending vcp_debug fh
 
+  puts $command
+
   set timeout 0
   while { $vcp_pending == 1 } {
     if { $vcp_debug == 1  } { puts $fh "Waiting for reply. Delaying command $command." }
