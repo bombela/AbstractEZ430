@@ -6,6 +6,9 @@
 
 #include "ap_service.h"
 #include "ap_proto.h"
+#include "sync_proto.h"
+
+#include <iostream> // TODO REMOVE ME
 
 namespace ez430 {
 namespace protocol {
@@ -54,9 +57,39 @@ bool ApService::getMotion(MotionData& d)
 	return true;
 }
 
-bool ApService::getSyncData(SyncData&)
+bool ApService::requestSyncData()
 {
-	throw "not implemented";
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+				sync::packet::SYNC_AP_CMD_GET_STATUS);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+	return true;
+}
+
+bool ApService::getSyncData(SyncData& d)
+{
+	if (!syncBufferIsReady())
+		return false;
+	
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_READ_BUFFER,
+				sync::packet::SYNC_AP_CMD_GET_STATUS);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+
+	d.useMetric = packet.useMetric;
+	d.hour = packet.hour;
+	d.minute = packet.minute;
+	d.second = packet.second;
+	d.year = packet.year;
+	d.month = packet.month;
+	d.day = packet.day;
+	d.alarmHour = packet.alarmHour;
+	d.alarmMinute = packet.alarmMinute;
+	d.temperature = packet.temperature / 10.f;
+	d.altitude = packet.altitude;
+	return true;
 }
 
 bool ApService::setSyncData(const SyncData&)
@@ -64,9 +97,23 @@ bool ApService::setSyncData(const SyncData&)
 	throw "not implemented";
 }
 
-bool ApService::exitWatchSync()
+bool ApService::exitWatchSyncMode()
 {
-	throw "not implemented";
+	sync::packet::Sync packet =
+		sync::createPacket<sync::packet::Sync>(ap::packet::BM_SYNC_SEND_COMMAND,
+				sync::packet::SYNC_AP_CMD_EXIT);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+	return packet.status;
+}
+
+bool ApService::syncBufferIsReady()
+{
+	ap::packet::Status packet =
+		ap::createPacket<ap::packet::Status>(ap::packet::BM_SYNC_GET_BUFFER_STATUS);
+	boost::asio::write(_serialPort, buffer(packet));
+	boost::asio::read(_serialPort, buffer(packet));
+	return packet.status;
 }
 
 } // namespace protocol
