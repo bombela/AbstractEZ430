@@ -17,7 +17,7 @@ namespace packet {
 
 enum {
 	SYNC_AP_CMD_NOP                      = 1u,
-	SYNC_AP_CMD_GET_STATUS				 = 2u,
+	SYNC_AP_CMD_GET_STATUS		     = 2u,
 	SYNC_AP_CMD_SET_WATCH                = 3u,
 	SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_1 = 4u,
 	SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_2 = 5u,

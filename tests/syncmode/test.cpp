@@ -71,6 +71,15 @@ int main(int argc, char const* argv[])
 			std::cout << "Date: " << watch.getDate() << std::endl;
 			std::cout << "Time: " << watch.getTime() << std::endl;
 		}
+		else if (arg == "ga")
+		{
+			std::cout << "Alarm: " << watch.getAlarm() << std::endl;
+		}
+		else if (arg == "ta")
+		{
+			std::cout << "Temp: " << watch.getTemperature() << std::endl;
+			std::cout << "Alt: " << watch.getAltitude() << std::endl;
+		}
 	}
 	std::cout << "bye..." << std::endl;
 	return 0;

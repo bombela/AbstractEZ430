@@ -102,18 +102,37 @@ class Implementation
 			d.day = sd.day;
 			return d;
 		}
-		bool     setDate(Date)
+
+		bool     setDate(Date d)
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			sd.year = d.year;
+			sd.month = d.month;
+			sd.day = d.day;
+			return _service.setSyncData(sd);
 		}
 
 		Time     getAlarm()
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			Time a;
+			a.hour = sd.alarmHour;
+			a.minute = sd.alarmMinute;
+			a.second = 0;
+			return a;
 		}
-		bool     setAlarm(Time)
+		bool     setAlarm(Time t)
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			sd.alarmHour = t.hour;
+			sd.alarmMinute = t.minute;
+			return _service.setSyncData(sd);
 		}
 
 		bool     setSystemDateAndTime()
@@ -123,20 +142,35 @@ class Implementation
 
 		float    getTemperature()
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			return sd.temperature;
 		}
+
 		bool     setTemperature(float offset)
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			sd.temperature = offset;
+			return _service.setSyncData(sd);			
 		}
 
 		int      getAltitude()
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			return sd.altitude;
 		}
 		bool     setAltitude(float offset)
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			sd.altitude = offset;
+			return _service.setSyncData(sd);			
 		}
 
 		Watch::Unit getUnitSystem()

@@ -15,6 +15,14 @@
 
 namespace ez430 {
 
+struct Alarm
+{
+	int hour;
+	int minute;
+	
+	friend std::ostream& operator<<(std::ostream& os, const Alarm&);
+};
+
 struct Date
 {
 	int year;

@@ -128,15 +128,15 @@ class Weapon(soya.Body):
 
 			
 
-#			self.speed.x = 0
-#			self.speed.y = 0
-#			self.speed.z = motion.z * -1
-#			self.add_vector(self.speed)
+			self.speed.x = 0
+			self.speed.y = 0
+			self.speed.z = motion.z * -1
+			self.add_vector(self.speed)
 
-#			self.speed.x = motion.x
-#			self.speed.y = 0
-#			self.speed.z = 0
-#			self.add_vector(self.speed)
+			self.speed.x = motion.x
+			self.speed.y = 0
+			self.speed.z = 0
+			self.add_vector(self.speed)
 
 #			self.b = self.b + 1
 #			self.rotation_speed = random.uniform(-25., 25.)
@@ -147,9 +147,9 @@ class Weapon(soya.Body):
 		soya.Body.advance_time(self, proportion)
 		self.add_vector(self.speed)
 #		self.rotate_axis(self.a, self.speed)
-#		self.rotate_x(self.r_speed.x)
-#		self.rotate_y(self.r_speed.y)
-#		self.rotate_z(self.r_speed.z)
+		self.rotate_x(self.r_speed.x)
+		self.rotate_y(self.r_speed.y)
+		self.rotate_z(self.r_speed.z)
 #		if self.motion != False:
 #			self.add_mul_vector(proportion, self.speed)
 
