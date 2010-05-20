@@ -91,7 +91,6 @@ class Demo(soya.Body):
 		self.models.append(soya.Model.get("wheel4"))
 		self.models.append(soya.Model.get("cube1"))
 		self.models.append(soya.Model.get("pyramid"))
-		self.models.append(soya.Model.get("butterfly"))		
 		self.modelidx = 0
 		self.set_model(self.models[self.modelidx])
 
