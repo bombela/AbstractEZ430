@@ -13,4 +13,7 @@
 
 std::vector<std::string> probePorts();
 
+#define RFEZ430_VENDOR  0x0451
+#define RFEZ430_PRODUCT 0x16A6
+
 #endif /* PROBEPORTS_H */

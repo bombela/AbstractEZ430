@@ -92,5 +92,5 @@ BOOST_PYTHON_MODULE(_ez430)
 		.def("exitWatchSyncMode", &Watch::exitWatchSyncMode)
 		;
 
-	def("probePorts", &Watch::probePorts);
+	def("probePorts", &AccessPoint::probePorts);
 }

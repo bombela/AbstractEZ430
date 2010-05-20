@@ -82,8 +82,6 @@ class Watch
 		bool     setUnitSystem(Unit);
 
 		bool     exitWatchSyncMode();
-		
-		static std::vector<std::string> probePorts();
 	
 	private:
 		class Implementation *_impl;

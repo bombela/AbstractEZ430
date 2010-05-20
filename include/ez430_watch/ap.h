@@ -37,7 +37,7 @@ class AccessPoint
 
 		protocol::Service& getService();
 
-		static std::vector<std::string> probeLines();
+		static std::vector<std::string> probePorts();
 
 	private:
 		class Implementation *_impl;

@@ -4,14 +4,10 @@
 #
 #
 
-find_package(Boost 1.38 REQUIRED system thread date_time)
+find_package(Boost 1.38 REQUIRED system thread date_time filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
-
-set(PLATEFORM_SRCS
-	probeports.cpp
-	)
 
 if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
 	set(PLATEFORM linux)
@@ -19,6 +15,8 @@ else()
 	message(WARNING "Plateform not supported, using generic placeholder code")
 	set(PLATEFORM generic)
 endif()
+
+include(${PLATEFORM}/CMakeLists.txt)
 
 set(PLATEFORM_SRCS_PATH)
 foreach(src ${PLATEFORM_SRCS})
@@ -32,4 +30,4 @@ add_library(ez430_watch SHARED
 	${PLATEFORM_SRCS_PATH}
 	)
 
-target_link_libraries(ez430_watch ${Boost_LIBRARIES})
+target_link_libraries(ez430_watch ${Boost_LIBRARIES} ${PLATEFORM_LIBRARIES})

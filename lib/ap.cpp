@@ -9,6 +9,7 @@
 #include <boost/asio.hpp>
 #include "ap_proto.h"
 #include "ap_service.h"
+#include "probeports.h"
 
 namespace ez430 {
 
@@ -136,5 +137,6 @@ AccessPoint::RadioState AccessPoint::getRadioState() { return _impl->getRadioSta
 void AccessPoint::startRadio() { _impl->startRadio(); }
 void AccessPoint::stopRadio() { _impl->stopRadio(); }
 protocol::Service& AccessPoint::getService() { return _impl->getService(); }
+std::vector<std::string> AccessPoint::probePorts() { return ::probePorts(); }
 
 } // namespace ez430
