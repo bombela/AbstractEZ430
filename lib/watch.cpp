@@ -23,16 +23,59 @@ class Implementation
 			_smooth(0),
 			_lastX(0),
 			_lastY(0),
-			_lastZ(0)
+			_lastZ(0),
+			_timeout(500)
 		{
 		}
+
+		float getSmooth() const { return _smooth; }
+		void  setSmooth(float value)
+		{
+			if (value < 0)
+				_smooth = 0;
+			else if (value > 1)
+				_smooth = 1;
+			else
+				_smooth = value;
+		}
+
+		unsigned getTimeout() const { return _timeout; }
+		void     setTimeout(unsigned v)
+		{
+			if (v == 0)
+				_timeout = 1;
+			else
+				_timeout = v;
+		}
 		
+		bool           tryGetMotion(Motion& m)
+		{
+			protocol::MotionData md;
+			if (!_service.getMotion(md))
+				return false;
+
+			if (!md.haveAcc || _smooth == 0)
+				m = reinterpret_cast<Motion&>(md);
+			else
+			{
+				m.button = static_cast<Motion::Button>(md.button);
+				m.haveAcc = md.haveAcc;
+
+				const float newSmooth = 1.f - _smooth;
+
+				m.x = _lastX = md.x * newSmooth + _lastX * _smooth;
+				m.y = _lastY = md.y * newSmooth + _lastY * _smooth;
+				m.z = _lastZ = md.z * newSmooth + _lastZ * _smooth;
+			}
+			return true;
+		}
+
 		Motion         getMotion()
 		{
 			protocol::MotionData md;
-			int retry = 50;
+			int retry = _timeout;
 			while (--retry && !_service.getMotion(md))
-				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+				boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 			if (retry == 0)
 				throw std::runtime_error("motion data retrieving timeout excessed");
 			
@@ -57,17 +100,6 @@ class Implementation
 			if (_service.getMotion(md))
 				return static_cast<Motion::Button>(md.button);
 			return Motion::NONE;
-		}
-
-		float getSmooth() const { return _smooth; }
-		void  setSmooth(float value)
-		{
-			if (value < 0)
-				_smooth = 0;
-			else if (value > 1)
-				_smooth = 1;
-			else
-				_smooth = value;
 		}
 
 		Time     getTime()
@@ -212,6 +244,7 @@ class Implementation
 		int                _lastX;
 		int                _lastY;
 		int                _lastZ;
+		unsigned           _timeout;
 
 		void retrieveSyncData(protocol::SyncData& d)
 		{
@@ -228,10 +261,13 @@ class Implementation
 
 Watch::~Watch() { delete _impl; }
 Watch::Watch(protocol::Service& service): _impl(new Implementation(service)) {}
-Motion Watch::getMotion() { return _impl->getMotion(); }
-Motion::Button Watch::getButton() { return _impl->getButton(); }
 float Watch::getSmooth() const { return _impl->getSmooth(); }
 void Watch::setSmooth(float value) { _impl->setSmooth(value); }
+unsigned Watch::getTimeout() const { return _impl->getTimeout(); }
+void Watch::setTimeout(unsigned v) { _impl->setTimeout(v); }
+bool Watch::tryGetMotion(Motion& m) { _impl->tryGetMotion(m); }
+Motion Watch::getMotion() { return _impl->getMotion(); }
+Motion::Button Watch::getButton() { return _impl->getButton(); }
 Time Watch::getTime() { return _impl->getTime(); }
 bool Watch::setTime(Time t) { return _impl->setTime(t); }
 Date Watch::getDate() { return _impl->getDate(); }

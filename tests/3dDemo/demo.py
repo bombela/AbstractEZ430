@@ -28,6 +28,7 @@ if ap.isOpen():
 
 watch = ez430.Watch(ap.getService())
 watch.setSmooth(0.80)
+watch.setTimeout(200)
 
 class MotionThread(Thread):
 	def __init__ (self):
@@ -116,6 +117,8 @@ class Demo(soya.Body):
 
 		motion = motionThread.motion
 		if motion != False:
+		#motion = ez430.Motion()
+		#if watch.tryGetMotion(motion):
 			if self.btnlatency == 0 and motion.button == ez430.Button.UP:
 				self.nextmodel()
 				self.btnlatency = 10
