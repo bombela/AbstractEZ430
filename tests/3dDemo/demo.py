@@ -34,9 +34,11 @@ class MotionThread(Thread):
 	def __init__ (self):
 		Thread.__init__(self)
 		self.motion = False
-		self.running = True
+		self.running = False
 
 	def run(self):
+		self.running = True
+		self.motion = False
 		if not ap.isOpen():
 			print "Access point not open... stop thread"
 			return
@@ -99,6 +101,8 @@ class Demo(soya.Body):
 
 		self.btnlatency = 0
 
+		self.useThread = True
+
 	def nextmodel(self):
 		self.modelidx += 1
 		if self.modelidx >= len(self.models):
@@ -115,13 +119,29 @@ class Demo(soya.Body):
 		#			self.set_model(soya.Model.get("sword"))
 
 
-		motion = motionThread.motion
+		motion = False
+		if self.useThread:
+			motion = motionThread.motion
+		else:
+			motion = ez430.Motion()
+			if not watch.tryGetMotion(motion):
+				motion = False
+
 		if motion != False:
-		#motion = ez430.Motion()
-		#if watch.tryGetMotion(motion):
-			if self.btnlatency == 0 and motion.button == ez430.Button.UP:
-				self.nextmodel()
-				self.btnlatency = 10
+			if self.btnlatency == 0:
+				if motion.button == ez430.Button.UP:
+					self.nextmodel()
+				elif motion.button == ez430.Button.STAR:
+					if self.useThread:
+						print "Threading off"
+						motionThread.stop()
+						motionThread.join()
+						self.useThread = False
+					else:
+						print "Threading already off"
+				if motion.button != ez430.Button.NONE:
+					self.btnlatency = 10
+
 			if self.btnlatency > 0:
 				self.btnlatency -= 1
 
@@ -186,3 +206,4 @@ try:
 except (KeyboardInterrupt, SystemExit):
 	print "Exiting..."
 	motionThread.stop()
+	motionThread.join()
