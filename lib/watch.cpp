@@ -247,6 +247,12 @@ Watch::Unit Watch::getUnitSystem() { return _impl->getUnitSystem(); }
 bool Watch::setUnitSystem(Unit u) { return _impl->setUnitSystem(u); }
 bool Watch::exitWatchSyncMode() { return _impl->exitWatchSyncMode(); }
 
+std::vector<std::string> Watch::probePorts()
+{
+	std::vector<std::string> r;
+	return r;
+}
+
 // GLOBAL FUNCS
 
 std::ostream& operator<<(std::ostream& os, const Motion& motion)

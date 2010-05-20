@@ -55,6 +55,26 @@ BOOST_PYTHON_MODULE(_ez430)
 		.def("getService", &AccessPoint::getService, return_internal_reference<1>())
 		;
 
+	enum_<Motion::Button>("Button")
+		.value("NONE", Motion::NONE)
+		.value("STAR", Motion::STAR)
+		.value("NUM", Motion::NUM)
+		.value("UP", Motion::UP)
+		;
+
+	class_<Motion>("Motion")
+		.def_readwrite("button", &Motion::button)
+		.def_readwrite("haveAcc", &Motion::haveAcc)
+		.def_readwrite("x", &Motion::x)
+		.def_readwrite("y", &Motion::y)
+		.def_readwrite("z", &Motion::z)
+		;
+
+	enum_<Watch::Unit>("Unit")
+		.value("METRIC", Watch::METRIC)
+		.value("AMERICAN", Watch::AMERICAN)
+		;
+
 	class_<Watch>("Watch", init<Service&>())
 		.def("getSmooth", &Watch::getSmooth)
 		.def("setSmooth", &Watch::setSmooth)
@@ -72,23 +92,5 @@ BOOST_PYTHON_MODULE(_ez430)
 		.def("exitWatchSyncMode", &Watch::exitWatchSyncMode)
 		;
 
-	enum_<Watch::Unit>("Unit")
-		.value("METRIC", Watch::METRIC)
-		.value("AMERICAN", Watch::AMERICAN)
-		;
-
-	enum_<Motion::Button>("Button")
-		.value("NONE", Motion::NONE)
-		.value("STAR", Motion::STAR)
-		.value("NUM", Motion::NUM)
-		.value("UP", Motion::UP)
-		;
-
-	class_<Motion>("Motion")
-		.def_readwrite("button", &Motion::button)
-		.def_readwrite("haveAcc", &Motion::haveAcc)
-		.def_readwrite("x", &Motion::x)
-		.def_readwrite("y", &Motion::y)
-		.def_readwrite("z", &Motion::z)
-		;
+	def("probePorts", &Watch::probePorts);
 }
