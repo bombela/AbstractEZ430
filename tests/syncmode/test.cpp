@@ -117,6 +117,16 @@ int main(int argc, char const* argv[])
 			else
 				std::cout << "Failed setting up UserMetric..." << std::endl;
 		}
+		else if (arg == "sdt")
+		{
+			if (watch.setSystemDateAndTime())
+			{
+				std::cout << "Date: " << watch.getDate() << std::endl;
+				std::cout << "Time: " << watch.getTime() << std::endl;
+			}
+			else
+				std::cout << "Failed setting up System Date And Time..." << std::endl;
+		}
 	}
 	std::cout << "bye..." << std::endl;
 	return 0;

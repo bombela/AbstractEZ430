@@ -137,7 +137,20 @@ class Implementation
 
 		bool     setSystemDateAndTime()
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+			time_t rawtime;
+			struct tm *t = 0;
+
+			time(&rawtime);
+			t = localtime(&rawtime);
+			sd.hour = t->tm_hour;
+			sd.minute = t->tm_min;
+			sd.second = t->tm_sec;
+			sd.year = t->tm_year;
+			sd.month = t->tm_mon;
+			sd.day = t->tm_mday;
+			return _service.setSyncData(sd);
 		}
 
 		float    getTemperature()
@@ -190,7 +203,7 @@ class Implementation
 			return _service.setSyncData(sd);			
 		}
 
-		bool     exitWatchSyncMode() { _service.exitWatchSyncMode(); }
+		bool     exitWatchSyncMode() { return _service.exitWatchSyncMode(); }
 
 	private:
 		protocol::Service& _service;
@@ -225,8 +238,9 @@ Date Watch::getDate() { return _impl->getDate(); }
 bool Watch::setDate(Date t) { return _impl->setDate(t); }
 Time Watch::getAlarm() { return _impl->getAlarm(); }
 bool Watch::setAlarm(Time t) { return _impl->setAlarm(t); }
+bool Watch::setSystemDateAndTime() {return _impl->setSystemDateAndTime(); }
 float Watch::getTemperature() { return _impl->getTemperature(); }
-bool Watch::setTemperature(float t) { _impl->setTemperature(t); }
+bool Watch::setTemperature(float t) { return _impl->setTemperature(t); }
 int Watch::getAltitude() { return _impl->getAltitude(); }
 bool Watch::setAltitude(float t) { return _impl->setAltitude(t); }
 Watch::Unit Watch::getUnitSystem() { return _impl->getUnitSystem(); }
