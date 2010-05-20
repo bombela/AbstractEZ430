@@ -5,7 +5,9 @@
 */
 
 #include <sstream>
+#include <iostream>
 
+#include <boost/python.hpp>
 #include <boost/python.hpp>
 
 #include <ez430_watch/ap.h>
@@ -26,6 +28,17 @@ struct ServiceWrap: Service, wrapper<Service>
 
 	operator Service&() { return *this; }
 };
+
+
+list probePortsWrap()
+{
+	const std::vector<std::string>& ports = AccessPoint::probePorts();
+	list result;
+	const std::vector<std::string>::const_iterator& end = ports.end();
+	for (std::vector<std::string>::const_iterator i = ports.begin(); i != end; ++i)
+		result.append(*i);
+	return result;
+}
 
 BOOST_PYTHON_MODULE(_ez430)
 {
@@ -54,6 +67,7 @@ BOOST_PYTHON_MODULE(_ez430)
 		.def("getRadioState", &AccessPoint::getRadioState)
 		.def("getService", &AccessPoint::getService, return_internal_reference<1>())
 		;
+	def("probePorts", &probePortsWrap);
 
 	enum_<Motion::Button>("Button")
 		.value("NONE", Motion::NONE)
@@ -91,6 +105,4 @@ BOOST_PYTHON_MODULE(_ez430)
 		.def("setUnitSystem", &Watch::setUnitSystem)
 		.def("exitWatchSyncMode", &Watch::exitWatchSyncMode)
 		;
-
-	def("probePorts", &AccessPoint::probePorts);
 }

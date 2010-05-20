@@ -15,8 +15,9 @@ ap = ez430.AccessPoint()
 
 # ugly detection, yes...
 try:
-	if os.name == "posix":
-		ap.open("/dev/ttyACM0")
+	ports = ez430.probePorts()
+	if len(ports):
+		ap.open(ez430.probePorts()[0])
 except (RuntimeError):
 	print "Unable to connect to watch access point..."
 
@@ -54,7 +55,7 @@ motionThread = MotionThread()
 motionThread.start()
 
 # Initialisation
-soya.init(width = 1024, height = 768)
+soya.init(width = 1024, height = 768, sound = 0)
 soya.path.append(os.path.join(os.path.dirname(sys.argv[0]), "data"))
 
 # Creates a scene.
@@ -110,27 +111,29 @@ class Weapon(soya.Body):
 		self.a = 0 # angle
 
 		for event in soya.MAIN_LOOP.events:
-			if event[0] == soya.sdlconst.KEYDOWN:
-				# Translation
-				if   event[1] == soya.sdlconst.K_UP:     self.speed.z =  0.1
-				elif event[1] == soya.sdlconst.K_DOWN:   self.speed.z =  -0.2
-				elif event[1] == soya.sdlconst.K_LEFT:   self.speed.x = 0.1
-				elif event[1] == soya.sdlconst.K_RIGHT:  self.speed.x = -0.2
-				elif event[1] == soya.sdlconst.K_w:   self.speed.y = 0.1
-				elif event[1] == soya.sdlconst.K_s:  self.speed.y = -0.2
+			if event[0] == soya.sdlconst.KEYUP:
+				if event[1] == soya.sdlconst.K_a:
+					self.rotate(90,
+							soya.Point(scene, 0.0, 0.0, 0.0),
+							soya.Point(scene, 0.0, -1.0, -4.0))
+				elif event[1] == soya.sdlconst.K_z:
+					self.rotate(90,
+							soya.Point(scene, 0.0, 10.0, -4.0),
+							soya.Point(scene, 0.0, -10.0, -4.0))
+				elif event[1] == soya.sdlconst.K_e:
+					self.set_identity()
 
-				# Rotation
-				elif event[1] == soya.sdlconst.K_a:   self.r_speed.y = -10.0
-				elif event[1] == soya.sdlconst.K_d:  self.r_speed.y =  10.0
-				elif event[1] == soya.sdlconst.K_q:   self.r_speed.x = -10.0
-				elif event[1] == soya.sdlconst.K_e:  self.r_speed.x =  10.0
-				elif event[1] == soya.sdlconst.K_z:   self.r_speed.z = -10.0
-				elif event[1] == soya.sdlconst.K_c:  self.r_speed.z =  10.0
 
 		motion = motionThread.motion
 		if motion != False:
-			self.turn_x(self.adx.update(-motion.x * 90 / 54))
-			self.turn_y(self.ady.update(motion.y * 90 / 54))
+			dx = (motion.x * 90 / 60) + 90
+			dy = -(motion.y * 90 / 60)
+			self.set_identity()
+			self.x = 0.
+			self.y = -1.
+			self.z = -4.
+			self.turn_x(dx)
+			self.turn_y(dy)
 
 	def advance_time(self, proportion):
 		soya.Body.advance_time(self, proportion)
@@ -163,8 +166,9 @@ weapon = Weapon(scene, "sword")
 
 # Parametrage Sword
 weapon.x = 0.
-weapon.y = -4.
-weapon.z = 3.
+weapon.y = -1.
+weapon.z = -4.
+weapon.turn_y(90)
 weapon.turn_x(90)
 
 # Gestion de la lumiere
@@ -194,7 +198,7 @@ camera.x = 0.
 camera.y = 0.
 camera.z = 0.
 
-camera.look_at(weapon)
+#camera.look_at(weapon)
 
 # Application de la camera a la l'application
 soya.set_root_widget(camera)
