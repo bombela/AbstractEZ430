@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Soya & Python
-import sys, os, os.path, soya, soya.sdlconst, soya.cube
+import sys, os, os.path, soya, soya.sdlconst, soya.cube, soya.sphere
 import soya.widget as widget
 import math
 import random
@@ -87,19 +87,67 @@ class Demo(soya.Body):
 		soya.Body.__init__(self, parent)
 		self.models = []
 		
-		# cube material
+		# cube
+		#material = soya.Material()
+		#material.shininess = 0.5
+		#material.diffuse   = (0.0, 0.2, 0.7, 1.0)
+		#material.specular  = (0.2, 0.7, 1.0, 1.0)
+		#material.separate_specular = 1
+		#cube = soya.cube.Cube(None, material).to_model()
+
 		material = soya.Material()
-		material.shininess = 0.5
-		material.diffuse   = (0.0, 0.2, 0.7, 1.0)
-		material.specular  = (0.2, 0.7, 1.0, 1.0)
-		material.separate_specular = 1
+		material.environment_mapping = 0 # Specifies environment mapping is active
+		material.texture = soya.Image.get("motion.jpg")# The textured sphere map
+		cube = soya.cube.Cube()
+		for face in cube.children:
+			face.smooth_lit=1
+			face.material=material
+		material = soya.Material()
+		material.environment_mapping = 0 # Specifies environment mapping is active
+		material.texture = soya.Image.get("tiwatch.jpg")# The textured sphere map
+		cube.children[2].material = material
+		cube.scale(1.4, 1.4, 1.4)
+		cube = cube.to_model()
+
+
+		# sphere
+		material = soya.Material()
+		material.environment_mapping = 0 # Specifies environment mapping is active
+		material.texture = soya.Image.get("lava.jpg")# The textured sphere map
+		sphere = soya.sphere.Sphere()
+		for face in sphere.children:
+			face.smooth_lit=1
+			face.material=material
+		sphere = sphere.to_model()
+		
+		# sphere
+		material = soya.Material()
+		material.environment_mapping = 0 # Specifies environment mapping is active
+		material.texture = soya.Image.get("lava2.jpg")# The textured sphere map
+		sphere2 = soya.sphere.Sphere()
+		for face in sphere2.children:
+			face.smooth_lit=1
+			face.material=material
+		sphere2 = sphere2.to_model()
+
+		# cube2
+		material = soya.Material()
+		material.environment_mapping = 1 # Specifies environment mapping is active
+		material.texture = soya.Image.get("sphere_map.jpg")# The textured sphere map
+		cube2 = soya.cube.Cube()
+		for face in cube2.children:
+			face.smooth_lit=0
+			face.material=material
+		cube2 = cube2.to_model()
 
 		# models
-		self.models.append(soya.cube.Cube(None, material).to_model())
+		self.models.append(cube)
+		self.models.append(sphere)
+		self.models.append(cube2)
+		self.models.append(sphere2)
 		self.models.append(soya.Model.get("sword"))
 		self.models.append(soya.Model.get("wheel4"))
-		self.models.append(soya.Model.get("cube1"))
-		self.models.append(soya.Model.get("pyramid"))
+		#self.models.append(soya.Model.get("pyramid"))
 		self.modelidx = 0
 		self.set_model(self.models[self.modelidx])
 
