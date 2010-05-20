@@ -31,6 +31,10 @@ BOOST_PYTHON_MODULE(_ez430)
 {
 	class_<ServiceWrap, boost::noncopyable>("Service")
 		.def("getMotion", &ServiceWrap::getMotion)
+		.def("requestSyncData", &ServiceWrap::requestSyncData)
+		.def("getSyncData", &ServiceWrap::getSyncData)
+		.def("setSyncData", &ServiceWrap::setSyncData)
+		.def("exitWatchSyncMode", &ServiceWrap::exitWatchSyncMode)
 		;
 
 	enum_<AccessPoint::RadioState>("RadioState")
@@ -56,6 +60,22 @@ BOOST_PYTHON_MODULE(_ez430)
 		.def("setSmooth", &Watch::setSmooth)
 		.def("getMotion", &Watch::getMotion)
 		.def("getButton", &Watch::getButton)
+		.def("getAlarm", &Watch::getAlarm)
+		.def("setAlarm", &Watch::setAlarm)
+		.def("setSystemDateAndTime", &Watch::setSystemDateAndTime)
+		.def("getTemperature", &Watch::getTemperature)
+		.def("setTemperature", &Watch::setTemperature)
+		.def("getAltitude", &Watch::getAltitude)
+		.def("setAltitude", &Watch::setAltitude)
+		.def("getUnitSystem", &Watch::getUnitSystem)
+		.def("setUnitSystem", &Watch::setUnitSystem)
+		.def("exitWatchSyncMode", &Watch::exitWatchSyncMode)
+		.def("probePorts", &Watch::probePorts)
+		;
+
+	enum_<Watch::Unit>("Unit")
+		.value("METRIC", Watch::METRIC)
+		.value("AMERICAN", Watch::AMERICAN)
 		;
 
 	enum_<Motion::Button>("Button")
