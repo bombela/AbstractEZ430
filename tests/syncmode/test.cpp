@@ -71,7 +71,7 @@ int main(int argc, char const* argv[])
 			std::cout << "Date: " << watch.getDate() << std::endl;
 			std::cout << "Time: " << watch.getTime() << std::endl;
 		}
-		else if (arg == "ga")
+		else if (arg == "a")
 		{
 			std::cout << "Alarm: " << watch.getAlarm() << std::endl;
 		}
@@ -79,6 +79,30 @@ int main(int argc, char const* argv[])
 		{
 			std::cout << "Temp: " << watch.getTemperature() << std::endl;
 			std::cout << "Alt: " << watch.getAltitude() << std::endl;
+		}
+		else if (arg == "sa")
+		{
+			Time t;
+			t.hour = 4;
+			t.minute = 42;
+			t.second = 0;
+			std::cout << "Setting AlarmTime: " << t << std::endl;
+			if (watch.setAlarm(t))
+				std::cout << "Alarm: " << watch.getAlarm() << std::endl;
+			else
+				std::cout << "Failed setting up alarmtime..." << std::endl;
+		}
+		else if (arg == "sta")
+		{
+			float a = 42.0;
+			if (watch.setTemperature(a))
+				std::cout << "Temp: " << watch.getTemperature() << std::endl;
+			else
+				std::cout << "Failed setting up temperature..." << std::endl;
+			if (watch.setAltitude(a))
+				std::cout << "Alt: " << watch.getAltitude() << std::endl;
+			else
+				std::cout << "Failed setting up altitude..." << std::endl;
 		}
 	}
 	std::cout << "bye..." << std::endl;

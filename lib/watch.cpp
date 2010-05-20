@@ -220,6 +220,7 @@ bool Watch::setAlarm(Time t) { return _impl->setAlarm(t); }
 float Watch::getTemperature() { return _impl->getTemperature(); }
 bool Watch::setTemperature(float t) { _impl->setTemperature(t); }
 int Watch::getAltitude() { return _impl->getAltitude(); }
+bool Watch::setAltitude(float t) { return _impl->setAltitude(t); }
 Watch::Unit Watch::getUnitSystem() { return _impl->getUnitSystem(); }
 bool Watch::setUnitSystem(Unit u) { return _impl->setUnitSystem(u); }
 bool Watch::exitWatchSyncMode() { return _impl->exitWatchSyncMode(); }
