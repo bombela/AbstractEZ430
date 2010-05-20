@@ -7,6 +7,7 @@
 #include <ez430_watch/watch.h>
 #include <stdexcept>
 #include <boost/thread.hpp>
+#include <boost/date_time.hpp>
 #include <locale>
 #include <ctime>
 #include <cstring>
@@ -137,19 +138,18 @@ class Implementation
 
 		bool     setSystemDateAndTime()
 		{
+			using namespace boost::posix_time;
+
 			protocol::SyncData sd;
 			retrieveSyncData(sd);
-			time_t rawtime;
-			struct tm *t = 0;
-
-			time(&rawtime);
-			t = localtime(&rawtime);
-			sd.hour = t->tm_hour;
-			sd.minute = t->tm_min;
-			sd.second = t->tm_sec;
-			sd.year = t->tm_year;
-			sd.month = t->tm_mon;
-			sd.day = t->tm_mday;
+			
+			std::tm tm = to_tm(second_clock::local_time());
+			sd.hour = tm.tm_hour;
+			sd.minute = tm.tm_min;
+			sd.second = tm.tm_sec;
+			sd.year = tm.tm_year;
+			sd.month = tm.tm_mon;
+			sd.day = tm.tm_mday;
 			return _service.setSyncData(sd);
 		}
 
