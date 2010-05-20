@@ -19,7 +19,16 @@ int main(int argc, char const* argv[])
 {
 	if (argc < 3)
 	{
-		std::cout << "usage: " << "/dev/ttyACM0 cmd" << std::endl;
+		std::cout << "Usage: " << "/dev/ttyACM0 cmd" << std::endl
+		<< "cmd\t" << "description" << std::endl
+		<< "---\t" << "-----------" << std::endl
+		<< "td\t" << "Get Date and Time from the watch" << std::endl
+		<< "st\t" << "Set Time at 4:42:42 on the watch" << std::endl
+		<< "a\t" << "Get Alarm from the watch" << std::endl
+		<< "ta\t" << "Get Temperature and Altitude from the watch" << std::endl
+		<< "us\t" << "Get UnitSystem from the watch" << std::endl
+		<< "sus\t" << "Set UnitSystem to American on the watch" << std::endl
+		<< "ssdt\t" << "Set System Date And Time on the watch" << std::endl;
 		return -1;
 	}
 
@@ -69,7 +78,6 @@ int main(int argc, char const* argv[])
 			t.second = 42;
 			std::cout << "Setting time: " << t << std::endl;
 			watch.setTime(t);
-			std::cout << "Date: " << watch.getDate() << std::endl;
 			std::cout << "Time: " << watch.getTime() << std::endl;
 		}
 		else if (arg == "a")
@@ -96,14 +104,14 @@ int main(int argc, char const* argv[])
 			std::cout << "Temp: " << watch.getTemperature() << std::endl;
 			std::cout << "Alt: " << watch.getAltitude() << std::endl;
 		}
-		else if (arg == "um")
+		else if (arg == "us")
 		{
 			std::cout << "UnitSystem: " << watch.getUnitSystem() << std::endl;
 		}
-		else if (arg == "sum")
+		else if (arg == "sus")
 		{
 			watch.setUnitSystem(Watch::AMERICAN);
-			std::cout << "UserMetric: " << std::boolalpha
+			std::cout << "UnitSystem: " << std::boolalpha
 				<< (bool)watch.getUnitSystem() << std::endl;
 		}
 		else if (arg == "ssdt")
