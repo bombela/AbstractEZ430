@@ -104,6 +104,19 @@ int main(int argc, char const* argv[])
 			else
 				std::cout << "Failed setting up altitude..." << std::endl;
 		}
+		else if (arg == "um")
+		{
+			std::cout << "UserMetric: " << std::boolalpha << (bool)watch.getUnitSystem() << std::endl;
+		}
+		else if (arg == "sum")
+		{
+			if (watch.setUnitSystem(Watch::AMERICAN))
+			{
+				std::cout << "UserMetric: " << std::boolalpha << (bool)watch.getUnitSystem() << std::endl;
+			}
+			else
+				std::cout << "Failed setting up UserMetric..." << std::endl;
+		}
 	}
 	std::cout << "bye..." << std::endl;
 	return 0;

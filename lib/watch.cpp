@@ -175,11 +175,19 @@ class Implementation
 
 		Watch::Unit getUnitSystem()
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			return (sd.useMetric == 0) ? Watch::METRIC : Watch::AMERICAN;
 		}
-		bool     setUnitSystem(Watch::Unit)
+
+		bool     setUnitSystem(Watch::Unit u)
 		{
-			throw "not implemented";
+			protocol::SyncData sd;
+			retrieveSyncData(sd);
+
+			sd.useMetric = (bool)u;
+			return _service.setSyncData(sd);			
 		}
 
 		bool     exitWatchSyncMode() { _service.exitWatchSyncMode(); }
