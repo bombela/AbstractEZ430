@@ -58,7 +58,7 @@ motionThread = MotionThread()
 motionThread.start()
 
 # Initialisation
-soya.init(width = 1024, height = 768, sound = 0)
+soya.init(width = 1024, height = 768, sound = 0, title = "tata")
 soya.path.append(os.path.join(os.path.dirname(sys.argv[0]), "data"))
 
 # Creates a scene.
@@ -93,6 +93,9 @@ class Demo(soya.Body):
 		# models
 		self.models.append(cube_model)
 		self.models.append(soya.Model.get("sword"))
+		self.models.append(soya.Model.get("wheel4"))
+		self.models.append(soya.Model.get("cube1"))
+		self.models.append(soya.Model.get("pyramid"))
 		self.modelidx = 0
 		self.set_model(self.models[self.modelidx])
 
