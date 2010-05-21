@@ -67,7 +67,6 @@ int main(int argc, char const* argv[])
 		}
 		else if (arg == "td")
 		{
-			watch.exitWatchSyncMode();
 			std::cout << "Date: " << watch.getDate() << std::endl;
 			std::cout << "Time: " << watch.getTime() << std::endl;
 		}

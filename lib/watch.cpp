@@ -231,7 +231,7 @@ class Implementation
 			protocol::SyncData sd;
 			retrieveSyncData(sd);
 
-			sd.useMetric = (bool)u;
+			sd.useMetric = (u == Watch::METRIC);
 			return _service.setSyncData(sd);			
 		}
 
