@@ -11,8 +11,71 @@
 \usepackage{lmodern}
 \usepackage[english]{babel}
 
+\title{HOWTO using AbstractEZ430 library with C++ and Python language}
+\author{François-Xavier 'Bombela' Bourlet <bombela@gmail.com>}
+
+\newcommand\cppbox[1]{
+}
+
+\makeindex
 \begin{document}
 
-Hello people!
+\lstset{
+	language=C++
+}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+This HOWTO will present to you the best and simple way
+to use the AbstractEZ430 library.
+
+You will learn to initiate a communication to an access point,
+and next how to communicate with the watch.
+
+The two languages actually supported by the library
+are C++ (natively supported) and Python (binding).
+
+The API (Application Programming Interface) is OO (Oriented Object)
+both supported by C++ and Python.
+
+The API propose tree classes:
+\begin{itemize}
+	\item \textbf{AccessPoint},
+			Provide the necessary for controlling the RF (Radio Frequency) access point.
+			Need a serial port to operate on it.
+	\item \textbf{Service},
+			The most basic way to communicate with the watch proposed
+			by the API. This is not indented to be user friendly.
+			AccessPoint class provide a specialized version of this service
+			to be used by the Watch class.
+	\item \textbf{Watch},
+			an high-level class to communication with the watch via the RF access point.
+			This class need a Service implementation to deal with the watch,
+			like the Service gibed by the AccessPoint class.
+			The Watch class is only a wrapper class on top of the Service class,
+			for providing an easier interface to the library user.
+\end{itemize}
+
+\section{Using RF access point}
+
+
+
+\begin{lstlisting}[language=C++]
+	int a = 42;
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+	int a = 42;
+\end{lstlisting}
+
+\section{Using RF access point port detection}
+
+\section{Using Watch}
 
 \end{document}
