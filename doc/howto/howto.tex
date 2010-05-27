@@ -215,6 +215,7 @@ int main()
 }
 \end{C++}
 
+\break
 \begin{python}
 #!/usr/bin/env python
 
@@ -240,7 +241,72 @@ foreach i in ports:
 	print "current radio state: %s" % ap.getRadioState()
 \end{python}
 
+\break
 \section{Using Watch}
+
+Using the high level Watch class is very easy,
+we just need to retrieve a Service from the access point
+and start to play with the watch:
+
+\begin{C++}
+#include <iostream>
+#include <ez430_watch/ap.h>
+#include <ez430_watch/watch.h>
+
+using namespace ez430;
+
+int main()
+{
+	const std::vector<std::string>& ports = AccessPoint::probePorts();
+
+	if (ports.size() == 0) {
+		std::cout << "No ports discovered :'('" << std::endl;
+		return -1;
+	}
+
+	AccessPoint ap(ports[0]);
+	ap.startRadio();
+	
+	Watch watch(ap.getService());
+	for (;;) {
+		try {
+			std::cout << watch.getMotion() << std::endl;
+		}
+		catch (const std::runtime_error&) {
+			std::cout << "Timeout, is watch connected?" << std::endl;
+		}
+	}
+	return 0;
+}
+\end{C++}
+
+\break
+\begin{python}
+#!/usr/bin/env python
+
+import ez430
+
+ports = ez430.probePorts()
+
+if len(ports) == 0:
+	print "No ports discovered :'('"
+	exit(-1)
+
+ap = ez430.AccessPoint(ports[0])
+ap.startRadio()
+
+watch = ez430.Watch(ap.getService())
+while True:
+	try:
+		print watch.getMotion()
+	except:
+		print "Timeout, is watch connected?"
+\end{python}
+
+Take a look inside the API reference documentation
+for all the possibilities.\\
+
+Happy hacking!
 
 %\section{Listings}
 %\lstlistoflistings
