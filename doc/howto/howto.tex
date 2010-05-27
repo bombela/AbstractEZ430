@@ -9,20 +9,61 @@
 \usepackage[pdftex]{color,graphicx}
 \usepackage{listings}
 \usepackage{lmodern}
+\usepackage{courier}
+\usepackage{caption}
 \usepackage[english]{babel}
+
+\lstset{
+	basicstyle=\footnotesize\ttfamily,
+	tabsize=2,
+	extendedchars=true,
+	breaklines=true,
+	keywordstyle=\textbf,
+	frame=b,
+	stringstyle=\ttfamily,
+	showspaces=false,
+	showtabs=false,
+	xleftmargin=17pt,
+	framexleftmargin=17pt,
+	framexrightmargin=5pt,
+	framexbottommargin=4pt,
+	showstringspaces=false
+}
+
+\DeclareCaptionFont{white}{\color{white}}
+
+\DeclareCaptionFormat{listing}{
+	\colorbox[rgb]{0.6, 0.6, 0.6}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}
+	}
+
+\captionsetup[lstlisting]{
+	format=listing,
+	labelfont=white,
+	textfont=white,
+	singlelinecheck=false,
+	margin=0pt,
+	font={bf,footnotesize}
+	}
 
 \title{HOWTO using AbstractEZ430 library with C++ and Python language}
 \author{François-Xavier 'Bombela' Bourlet <bombela@gmail.com>}
 
-\newcommand\cppbox[1]{
-}
+\lstnewenvironment{C++}{
+	\lstset{
+		language=C++,
+		title=C++
+	}
+}{}
+
+\lstnewenvironment{python}{
+	\lstset{
+		language=python,
+		title=Python
+	}
+}{}
 
 \makeindex
 \begin{document}
-
-\lstset{
-	language=C++
-}
 
 \maketitle
 \newpage
@@ -62,20 +103,146 @@ The API propose tree classes:
 			for providing an easier interface to the library user.
 \end{itemize}
 
+\break
+
 \section{Using RF access point}
 
+First you have to import all the necessary library definition.
 
+\begin{C++}
+#include <iostream>
+#include <ez430_watch/ap.h>
 
-\begin{lstlisting}[language=C++]
-	int a = 42;
-\end{lstlisting}
+using namespace ez430;
 
-\begin{lstlisting}[language=python]
-	int a = 42;
-\end{lstlisting}
+int main()
+{
+	AccessPoint ap;
 
+	try {
+		ap.open("/dev/ttyACMO");
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return -1;
+	}
+
+	if (!ap.isOpen()) {
+		std::cerr << "Access point must be open !"
+		return -2;
+	}
+	return 0;
+}
+\end{C++}
+
+\begin{python}
+#!/usr/bin/env python
+
+import ez430
+
+ap = ez430.AccessPoint()
+ap.open("/dev/ttyACM0")
+if not ap.isOpen():
+	print "Access point must be open !"
+	exit(-2)
+\end{python}
+
+\break
+Now, if you want use any service from the access point,
+we have to start-it, startRadio() is your friend:
+
+\begin{C++}
+std::cout << "Starting radio..." << std::endl;
+ap.startRadio();
+while (ap.getRadioState() == AccessPoint::STOPPED) {
+	std::cout << "Waiting for radio to be up..." << std::endl;
+	// This loop is really nasty, this is just a (bad) example.
+}
+std::cout << "Radio started!" << std::endl;
+\end{C++}
+
+\begin{python}
+ap.startRadio()
+while ap.getRadioState() == ez430.STOPPED:
+	print "Waiting for radio tu be up..."
+	# This loop is really nasty, this is just a (bad) example.
+print "Radio started!"
+\end{python}
+
+\break
 \section{Using RF access point port detection}
 
+You can use the automatic access point detection port
+for removing the necessity to provide it manually
+(or asking the user of your application).
+
+\textit{Note: actually the detection is only performed on GNU/Linux
+platform, on other system the detection will be empty.}
+
+The function probePorts() retrieve all the access points discovered
+on the system:
+
+\begin{C++}
+#include <iostream>
+#include <ez430_watch/ap.h>
+
+using namespace ez430;
+
+int main()
+{
+	const std::vector<std::string>& ports = AccessPoint::probePorts();
+
+	if (ports.size() == 0) {
+		std::cout << "No ports discovered :'('" << std::endl;
+		return -1;
+	}
+
+	AccessPoint ap;
+	for (std::vector<std::string>::const_iterator
+		i = ports.begin(); i != ports.end(); ++i)
+	{
+		std::cout << "opening: " << *i << " ..." << std::endl;
+		try { ap.open(*i); } catch (...) {}
+		if (!ap.isOpen()) {
+			std::cout << "unable to open " << *i << std::endl;
+			continue;
+		}
+		std::cout << std::hex << "product id: "
+				<< ap.getProductId() << std::dec << std::endl;
+		std::cout << "current radio state: " << ap.getRadioState() << std::endl;
+	}
+	return 0;
+}
+\end{C++}
+
+\begin{python}
+#!/usr/bin/env python
+
+import ez430
+
+ports = ez430.probePorts()
+
+if len(ports) == 0:
+	print "No ports discovered :'('"
+	exit(-1)
+
+ap = ez430.AccessPoint()
+foreach i in ports:
+	print "opening: %s" % i
+	try:
+		ap.open(i);
+	except:
+		pass
+	if not ap.isOpen():
+		print "unable to open "
+		continue
+	print "product id: %x" % ap.getProductId()
+	print "current radio state: %s" % ap.getRadioState()
+\end{python}
+
 \section{Using Watch}
+
+%\section{Listings}
+%\lstlistoflistings
 
 \end{document}
